@@ -165,7 +165,8 @@ public static partial class Utility
         }
     }
 
-    public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
+    // Path creator utility disabled by default, enable if you ahve the pathcreation plugin
+    /*public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
     {
         mono.InterpolateAlongPath( mono.transform, path, durationSec );
     }
@@ -193,7 +194,7 @@ public static partial class Utility
             transform.rotation = Quaternion.LookRotation( Vector3.forward, path.path.GetDirection( interp, PathCreation.EndOfPathInstruction.Stop ) );
             yield return null;
         }
-    }
+    }*/
 
     public static void Shake( this MonoBehaviour mono, float durationSec, float amplitudeStart, float amplitudeEnd, float frequency, float yMultiplier )
     {
