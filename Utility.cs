@@ -37,6 +37,11 @@ public static partial class Utility
         return Enum.GetValues( typeof( T ) ).Cast<T>();
     }
 
+    public static int GetNumEnumValues<T>()
+    {
+        return GetEnumValues<T>().Count();
+    }
+
     public static T ParseEnum<T>( string value ) where T : struct
     {
         return ( T )Enum.Parse( typeof( T ), value );
