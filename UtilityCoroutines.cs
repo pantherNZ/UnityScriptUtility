@@ -165,6 +165,32 @@ public static partial class Utility
         }
     }
 
+    public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec )
+    {
+        mono.InterpolateRotation( mono.transform, rotation, durationSec );
+    }
+
+    public static void InterpolateRotation( this MonoBehaviour mono, Transform transform, Vector3 rotation, float durationSec )
+    {
+        mono.StartCoroutine( InterpolateRotation( transform, rotation, durationSec ) );
+    }
+
+    public static IEnumerator InterpolateRotation( Transform transform, Vector3 rotation, float durationSec )
+    {
+        if( durationSec <= 0.0f )
+        {
+            Debug.LogError( "InterpolateRotation called with a negative or 0 duration" );
+            yield return null;
+        }
+
+        float timer = 0.0f;
+        while( transform != null && timer < durationSec )
+        {
+            timer += Time.deltaTime;
+            transform.Rotate( rotation * Time.deltaTime / durationSec );
+            yield return null;
+        }
+    }
     // Path creator utility disabled by default, enable if you ahve the pathcreation plugin
     /*public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
     {
