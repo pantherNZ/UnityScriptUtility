@@ -348,8 +348,21 @@ public enum EAxis
     None,
 }
 
+public static partial class Utility
+{
+    public static IEnumerable<Pair<A, B>> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
+    {
+        using var iteratorA = a.GetEnumerator();
+        using var iteratorB = b.GetEnumerator();
+        while( iteratorA.MoveNext() && iteratorB.MoveNext() )
+        {
+            yield return new Pair<A, B>( iteratorA.Current, iteratorB.Current );
+        }
+    }
+}
+
 #if UNITY_EDITOR
-public class ReadOnlyAttribute : PropertyAttribute
+    public class ReadOnlyAttribute : PropertyAttribute
 {
 
 }

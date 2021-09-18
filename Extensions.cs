@@ -51,6 +51,18 @@ public static partial class Extensions
         value = tuple.Value;
     }
 
+    public static TValue GetOrAdd<TKey, TValue>( this IDictionary<TKey, TValue> dict, TKey key )
+    where TValue : new()
+    {
+        if( !dict.TryGetValue( key, out TValue val ) )
+        {
+            val = new TValue();
+            dict.Add( key, val );
+        }
+
+        return val;
+    }
+
     public static Pair<U, V> FindPairFirst<U, V>( this List<Pair<U, V>> list, U item )
     {
         return list.Find( x => x.First.Equals( item ) );
