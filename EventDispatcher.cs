@@ -2,8 +2,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-/*
-public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IEndDragHandler
 {
     public Action<Collider> OnTriggerEnterEvent;
     public Action<Collider2D> OnTriggerEnter2DEvent;
@@ -22,6 +21,9 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public Action<PointerEventData> OnDoubleClickEvent;
     public float doubleClickInterval = 0.5f;
     float doubleClickTimer = 0.0f;
+
+    public Action<PointerEventData> OnBeginDragEvent;
+    public Action<PointerEventData> OnEndDragEvent;
 
     private void OnTriggerEnter2D( Collider2D collision )
     {
@@ -86,5 +88,14 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         OnPointerUpEvent?.Invoke( eventData );
     }
+
+    void IBeginDragHandler.OnBeginDrag( PointerEventData eventData )
+    {
+        OnBeginDragEvent?.Invoke( eventData );
+    }
+
+    void IEndDragHandler.OnEndDrag( PointerEventData eventData )
+    {
+        OnEndDragEvent?.Invoke( eventData );
+    }
 }
-*/

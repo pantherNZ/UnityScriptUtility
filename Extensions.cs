@@ -13,6 +13,11 @@ public static partial class Extensions
         UnityEngine.Object.Destroy( gameObject );
     }
 
+    public static void ToggleActive( this GameObject gameObject )
+    {
+        gameObject.SetActive( !gameObject.activeSelf );
+    }
+
     public static void DestroyAll( this List<GameObject> objects )
     {
         foreach( var x in objects )
@@ -38,6 +43,12 @@ public static partial class Extensions
             list.RemoveRange( size, cur - size );
         else if( size > cur )
             list.AddRange( Enumerable.Repeat( value, size - cur ) );
+    }
+
+    public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
+    {
+        key = tuple.Key;
+        value = tuple.Value;
     }
 
     public static Pair<U, V> FindPairFirst<U, V>( this List<Pair<U, V>> list, U item )
@@ -468,5 +479,16 @@ public static partial class Extensions
         if( !reader.IsDBNull( colIndex ) )
             return reader.GetInt32( colIndex );
         return 0;
+    }
+
+
+    public static float SafeDivide( this float v, float denominator )
+    {
+        return denominator == 0.0f ? 0.0f : v / denominator;
+    }
+
+    public static int SafeDivide( this int v, int denominator )
+    {
+        return denominator == 0 ? 0 : v / denominator;
     }
 }
