@@ -79,6 +79,7 @@ public static partial class Utility
     public static float DistanceSq( Transform a, Transform b ) { return DistanceSq( a.position, b.position ); }
     public static float DistanceSq( Vector3 a, Vector3 b ) { return ( a - b ).sqrMagnitude; }
 
+#if UNITY_EDITOR
     public static string GetResourcePath( UnityEngine.Object @object )
     {
         var resource = AssetDatabase.GetAssetPath( @object );
@@ -86,6 +87,7 @@ public static partial class Utility
         resource = resource.Substring( startIdx, resource.LastIndexOf( '.' ) - startIdx  );
         return resource;
     }
+#endif
 
     public static Sprite CreateSprite( Texture2D texture )
     {

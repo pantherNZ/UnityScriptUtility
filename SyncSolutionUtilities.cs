@@ -6,6 +6,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace EditorUtilities.Solution
 {
 	public static class SyncSolutionUtilities
@@ -90,3 +91,4 @@ namespace EditorUtilities.Solution
 		}
 	}
 }
+#endif
