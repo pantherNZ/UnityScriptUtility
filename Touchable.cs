@@ -10,10 +10,8 @@ public class Touchable_Editor : Editor
 }
 #endif
 
-public class Touchable : Text
+public class Touchable : Graphic
 { 
-    protected override void Awake() 
-    { 
-        base.Awake(); 
-    } 
+    protected override void Awake() { base.Awake(); }
+    protected override void UpdateGeometry() { }
 }
