@@ -42,4 +42,11 @@ public class EventSystem
         foreach( var receiver in receivers )
             receiver.OnEventReceived( e );
     }
+
+    public void TriggerEvent( IBaseEvent e, IEventReceiver caller )
+    {
+        foreach( var receiver in receivers )
+            if( receiver != caller )
+                receiver.OnEventReceived( e );
+    }
 }
