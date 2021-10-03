@@ -227,6 +227,43 @@ public static partial class Utility
     {
         foreach( var item in collection ) { yield return new Pair<int, T>( startIndex++, item ); }
     }
+
+    public static Vector2 GetMouseOrTouchPos()
+    {
+        return Input.touchCount > 0 ? Input.GetTouch( 0 ).position : Input.mousePosition.ToVector2();
+    }
+
+    public static bool IsMouseDownOrTouchStart()
+    {
+        return Input.GetMouseButtonDown( 0 ) || ( Input.touches.Length > 0 && Input.GetTouch( 0 ).phase == TouchPhase.Began );
+    }
+
+    public static bool IsMouseUpOrTouchEnd()
+    {
+        return Input.GetMouseButtonUp( 0 ) || ( Input.touches.Length > 0 && Input.GetTouch( 0 ).phase == TouchPhase.Ended );
+    }
+
+    public static bool IsPointerOverGameObject( GameObject gameObject )
+    {
+        var eventData = new UnityEngine.EventSystems.PointerEventData( UnityEngine.EventSystems.EventSystem.current )
+        {
+            position = GetMouseOrTouchPos()
+        };
+        var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
+        return raycastResults.Any( x => x.gameObject == gameObject );
+    }
+
+    public static bool IsPointerOverObjectWithComponent< T >()
+    {
+        var eventData = new UnityEngine.EventSystems.PointerEventData( UnityEngine.EventSystems.EventSystem.current )
+        {
+            position = GetMouseOrTouchPos()
+        };
+        var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
+        UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
+        return raycastResults.Any( x => x.gameObject.GetComponent< T >() != null );
+    }
 }
 
 public class WeightedSelector< T >
