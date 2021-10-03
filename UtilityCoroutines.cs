@@ -131,6 +131,9 @@ public static partial class Utility
                 transform.localScale.z + Mathf.Min( Mathf.Abs( diff.z ), Mathf.Abs( interp.z ) * delta ) * Mathf.Sign( diff.z ) );
             yield return null;
         }
+
+        if( transform != null )
+            transform.localScale = targetScale;
     }
 
     public static void InterpolatePosition( this MonoBehaviour mono, Vector3 targetPosition, float durationSec )
@@ -163,6 +166,9 @@ public static partial class Utility
                 transform.position.z + Mathf.Min( Mathf.Abs( diff.z ), Mathf.Abs( interp.z ) * delta ) * Mathf.Sign( diff.z ) );
             yield return null;
         }
+
+        if( transform != null )
+            transform.position = targetPosition;
     }
 
     public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec )
