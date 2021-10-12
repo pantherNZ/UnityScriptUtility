@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using UnityEngine.UI;
 
 public static partial class Utility
 {
@@ -263,6 +264,23 @@ public static partial class Utility
         var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
         UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
         return raycastResults.Any( x => x.gameObject.GetComponent< T >() != null );
+    }
+
+    public static int GetTextWidth( Text text )
+    {
+        int totalLength = 0;
+
+        Font font = text.font; //text is my UI text
+        char[] arr = text.text.ToCharArray();
+
+        foreach( char c in arr )
+        {
+            font.RequestCharactersInTexture( c.ToString(), text.fontSize, text.fontStyle );
+            font.GetCharacterInfo( c, out var characterInfo, text.fontSize );
+            totalLength += characterInfo.advance;
+        }
+
+        return totalLength;
     }
 }
 
