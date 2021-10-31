@@ -226,7 +226,10 @@ public static partial class Utility
 
     public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection, int startIndex = 0 )
     {
-        foreach( var item in collection ) { yield return new Pair<int, T>( startIndex++, item ); }
+        foreach( var item in collection ) 
+        { 
+            yield return new Pair<int, T>( startIndex++, item ); 
+        }
     }
 
     public static Vector2 GetMouseOrTouchPos()
@@ -246,16 +249,15 @@ public static partial class Utility
 
     public static bool IsPointerOverGameObject( GameObject gameObject )
     {
-        var eventData = new UnityEngine.EventSystems.PointerEventData( UnityEngine.EventSystems.EventSystem.current )
-        {
-            position = GetMouseOrTouchPos()
-        };
-        var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
-        UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
-        return raycastResults.Any( x => x.gameObject == gameObject );
+        return ForEachObjectOverPointer().Any( x => x.gameObject == gameObject );
     }
 
-    public static bool IsPointerOverObjectWithComponent< T >()
+    public static bool IsPointerOverObjectWithComponent< T >() where T : MonoBehaviour
+    {
+        return ForEachObjectOverPointer().Any( x => x.GetComponent< T >() != null );
+    }
+
+    public static IEnumerable<GameObject> ForEachObjectOverPointer()
     {
         var eventData = new UnityEngine.EventSystems.PointerEventData( UnityEngine.EventSystems.EventSystem.current )
         {
@@ -263,7 +265,9 @@ public static partial class Utility
         };
         var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
         UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
-        return raycastResults.Any( x => x.gameObject.GetComponent< T >() != null );
+
+        foreach( var result in raycastResults )
+            yield return result.gameObject;
     }
 
     public static int GetTextWidth( Text text )
