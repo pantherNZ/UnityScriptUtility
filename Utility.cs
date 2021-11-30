@@ -131,6 +131,15 @@ public static partial class Utility
         return colour;
     }
 
+    public static Color ColourFromHex( int rgba )
+    {
+        return new Color(
+              ( ( rgba & 0xff000000 ) >> 0x18 ) / 255.0f
+            , ( ( rgba & 0xff0000 ) >> 0x10 ) / 255.0F
+            , ( ( rgba & 0xff00 ) >> 0x08 ) / 255.0f
+            , ( rgba & 0xff ) / 255.0f );
+    }
+
     public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null )
     {
         colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );

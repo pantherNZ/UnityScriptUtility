@@ -1,5 +1,6 @@
 ﻿using Mono.Data.Sqlite;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -233,6 +234,57 @@ public static partial class Extensions
         return list;
     }
 
+    public static T RemoveAndGet<T>( this List<T> list, Predicate<T> match )
+    {
+        var idx = list.FindIndex( match );
+
+        if( idx == -1 )
+            return default;
+
+        var found = list[idx];
+        list.RemoveBySwap( idx );
+        return found;
+    }
+
+    public static bool Any( this BitArray bitArray )
+    {
+        for( int i = 0; i < bitArray.Length; ++i )
+            if( bitArray.Get( i ) )
+                return true;
+        return false;
+    }
+
+    public static int CountBits( this BitArray bitArray )
+    {
+        int count = 0;
+        for( int i = 0; i < bitArray.Length; ++i )
+            if( bitArray.Get( i ) )
+                count++;
+        return count;
+    }
+
+    public static BitArray ToBitArray( this Int64 numeral )
+    {
+        var array = new int[2];
+        array[0] = ( int )numeral;
+        array[1] = ( int )( numeral >> 32 );
+        return new BitArray( array );
+    }
+
+    public static Int64 ToNumeral( this BitArray binary )
+    {
+        if( binary == null )
+            throw new ArgumentNullException( "binary" );
+        if( binary.Length > 64 )
+            throw new ArgumentException( "must be at most 64 bits long" );
+
+        var array = new int[2];
+        binary.CopyTo( array, 0 );
+        Int64 output = ( Int64 )array[0];
+        output |= ( ( Int64 )array[1] ) << 32;
+        return output;
+    }
+
 #if UNITY_EDITOR
     public static string GetDataPathAbsolute( this TextAsset textAsset )
     {
@@ -258,6 +310,11 @@ public static partial class Extensions
     public static Color SetG( this Color col, float g ) { col.g = g; return col; }
     public static Color SetB( this Color col, float b ) { col.b = b; return col; }
     public static Color SetA( this Color col, float a ) { col.a = a; return col; }
+
+    public static Color ToColour( this int rgba )
+    {
+        return Utility.ColourFromHex( rgba );
+    }
 
     public static Vector2 ToVector2( this Vector3 vec ) { return new Vector2( vec.x, vec.y ); }
     public static Vector2 ToVector2( this Vector4 vec ) { return new Vector2( vec.x, vec.y ); }
