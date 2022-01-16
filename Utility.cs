@@ -131,6 +131,15 @@ public static partial class Utility
         return colour;
     }
 
+    public static Color ColourFromHex( int r, int g, int b, int a = 255 )
+    {
+        return new Color(
+              r / 255.0f
+            , g / 255.0F
+            , b / 255.0f
+            , a / 255.0f );
+    }
+
     public static Color ColourFromHex( int rgba )
     {
         return new Color(
@@ -254,6 +263,12 @@ public static partial class Utility
     public static bool IsMouseUpOrTouchEnd()
     {
         return Input.GetMouseButtonUp( 0 ) || ( Input.touches.Length > 0 && Input.GetTouch( 0 ).phase == TouchPhase.Ended );
+    }
+
+    public static bool IsBackButtonDown()
+    {
+        //return Input.GetKeyDown( KeyCode.Space );
+        return ( Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ) && Input.GetKeyDown( KeyCode.Space );
     }
 
     public static bool IsPointerOverGameObject( GameObject gameObject )
