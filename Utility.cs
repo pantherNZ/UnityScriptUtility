@@ -267,8 +267,9 @@ public static partial class Utility
 
     public static bool IsBackButtonDown()
     {
-        //return Input.GetKeyDown( KeyCode.Space );
-        return ( Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ) && Input.GetKeyDown( KeyCode.Space );
+        if( Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor )
+            return Input.GetKeyDown( KeyCode.Space );
+        return ( Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ) && Input.GetKeyDown( KeyCode.Escape );
     }
 
     public static bool IsPointerOverGameObject( GameObject gameObject )
