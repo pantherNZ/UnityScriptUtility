@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
+using System.Security.Cryptography;
 
 public static partial class Utility
 {
@@ -299,7 +300,7 @@ public static partial class Utility
     {
         int totalLength = 0;
 
-        Font font = text.font; //text is my UI text
+        Font font = text.font;
         char[] arr = text.text.ToCharArray();
 
         foreach( char c in arr )
@@ -311,7 +312,14 @@ public static partial class Utility
 
         return totalLength;
     }
-}
+
+    public static byte[] GetHash( string inputString )
+    {
+        using HashAlgorithm algorithm = SHA256.Create();
+        return algorithm.ComputeHash( System.Text.Encoding.UTF8.GetBytes( inputString ) );
+    }
+
+} // Utility namespace end
 
 public class WeightedSelector< T >
 {
@@ -448,7 +456,7 @@ public static partial class Utility
 }
 
 #if UNITY_EDITOR
-    public class ReadOnlyAttribute : PropertyAttribute
+public class ReadOnlyAttribute : PropertyAttribute
 {
 
 }

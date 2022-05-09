@@ -1,5 +1,4 @@
-﻿using Mono.Data.Sqlite;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -534,22 +533,6 @@ public static partial class Extensions
         transform.localScale = data.scale;
         transform.rotation = data.rotation;
     }
-
-    // Sql utility
-    public static string GetStringSafe( this SqliteDataReader reader, int colIndex )
-    {
-        if( !reader.IsDBNull( colIndex ) )
-            return reader.GetString( colIndex );
-        return string.Empty;
-    }
-
-    public static int GetInt32Safe( this SqliteDataReader reader, int colIndex )
-    {
-        if( !reader.IsDBNull( colIndex ) )
-            return reader.GetInt32( colIndex );
-        return 0;
-    }
-
 
     public static float SafeDivide( this float v, float denominator )
     {
