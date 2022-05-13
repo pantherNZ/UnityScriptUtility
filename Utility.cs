@@ -313,10 +313,11 @@ public static partial class Utility
         return totalLength;
     }
 
-    public static byte[] GetHash( string inputString )
+    public static UInt32 GetHashSHA256( string inputString )
     {
         using HashAlgorithm algorithm = SHA256.Create();
-        return algorithm.ComputeHash( System.Text.Encoding.UTF8.GetBytes( inputString ) );
+        var bytes = algorithm.ComputeHash( System.Text.Encoding.UTF8.GetBytes( inputString ) );
+        return BitConverter.ToUInt32( bytes, 0 );
     }
 
 } // Utility namespace end
