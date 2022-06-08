@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public abstract class IBaseEvent { }
 
 public interface IEventReceiver
 {
+    public abstract void OnEventReceived( IBaseEvent e );
+}
+
+public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
+{
+    private void Start()
+    {
+        EventSystem.Instance.AddSubscriber( this );
+    }
+
     public abstract void OnEventReceived( IBaseEvent e );
 }
 
