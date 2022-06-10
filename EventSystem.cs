@@ -11,7 +11,7 @@ public interface IEventReceiver
 
 public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
 {
-    private void Start()
+    protected virtual void Start()
     {
         EventSystem.Instance.AddSubscriber( this );
     }
