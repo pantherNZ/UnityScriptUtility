@@ -86,7 +86,7 @@ public static partial class Utility
     {
         var resource = AssetDatabase.GetAssetPath( @object );
         var startIdx = resource.IndexOf( "Resources/" ) + 10;
-        resource = resource.Substring( startIdx, resource.LastIndexOf( '.' ) - startIdx  );
+        resource = resource[startIdx..resource.LastIndexOf( '.' )];
         return resource;
     }
 #endif
@@ -94,8 +94,10 @@ public static partial class Utility
     public static Sprite CreateSprite( Texture2D texture )
     {
         if( texture == null )
+        {
+            Debug.LogError( "Utility::CreateSprite texture was null" );
             return null;
-
+        }
         return Sprite.Create( texture, new Rect( 0.0f, 0.0f, texture.width, texture.height ), new Vector2( 0.5f, 0.5f ) );
     }
 
