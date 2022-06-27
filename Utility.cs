@@ -361,6 +361,35 @@ public class WeightedSelector< T >
     private Func<int, int, int> randomGeneratorPred;
 }
 
+public class RateLimiter
+{
+    private int maxCalls;
+    private TimeSpan timeFrame;
+    private List<DateTime> calls = new List<DateTime>();
+
+    public RateLimiter( int maxCalls, TimeSpan timeFrame )
+    {
+        this.maxCalls = maxCalls;
+        this.timeFrame = timeFrame;
+    }
+
+    public bool CheckLimit()
+    {
+        var currentTime = DateTime.Now;
+        calls.RemoveAll( x => x < currentTime.Subtract( timeFrame ) );
+        return calls.Count < maxCalls;
+    }
+
+    public bool AttemptCall()
+    {
+        if( !CheckLimit() )
+            return false;
+
+        calls.Add( DateTime.Now );
+        return true;
+    }
+}
+
 public class TransformData
 {
     public Vector3 translation;
