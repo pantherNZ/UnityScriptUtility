@@ -127,6 +127,12 @@ public static partial class Extensions
         return removed;
     }
 
+    public static IList<T> Swap<T>( this IList<T> list, int indexA, int indexB )
+    {
+        (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
+        return list;
+    }
+
     public static bool IsVisible( this CanvasGroup group )
     {
         return group.alpha != 0.0f;

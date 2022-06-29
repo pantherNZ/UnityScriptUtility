@@ -70,6 +70,12 @@ public static partial class Utility
         return defaultValue;
     }
 
+
+    public static void Swap<T>( ref T a, ref T b )
+    {
+        (b, a) = (a, b);
+    }
+
     public static float Distance( GameObject a, GameObject b ) { return Distance( a.transform, b.transform ); }
     public static float Distance( GameObject a, Transform b ) { return Distance( a.transform, b ); }
     public static float Distance( Transform a, GameObject b ) { return Distance( a, b.transform ); }
