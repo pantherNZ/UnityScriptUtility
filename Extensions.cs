@@ -133,6 +133,12 @@ public static partial class Extensions
         return list;
     }
 
+    public static Dictionary<TKey, TValue> Swap<TKey, TValue>( this Dictionary<TKey, TValue> dict, TKey keyA, TKey keyB )
+    {
+        (dict[keyA], dict[keyB]) = (dict[keyB], dict[keyA]);
+        return dict;
+    }
+
     public static bool IsVisible( this CanvasGroup group )
     {
         return group.alpha != 0.0f;
@@ -548,5 +554,35 @@ public static partial class Extensions
     public static int SafeDivide( this int v, int denominator )
     {
         return denominator == 0 ? 0 : v / denominator;
+    }
+
+    public static long NextLong( this System.Random random, long min, long max )
+    {
+        if( max <= min )
+            throw new ArgumentOutOfRangeException( "max", "max must be > min!" );
+
+        ulong uRange = ( ulong )( max - min );
+
+        //Prevent a modolo bias; see https://stackoverflow.com/a/10984975/238419
+        ulong ulongRand;
+        do
+        {
+            byte[] buf = new byte[8];
+            random.NextBytes( buf );
+            ulongRand = ( ulong )BitConverter.ToInt64( buf, 0 );
+        } 
+        while( ulongRand > ulong.MaxValue - ( ( ulong.MaxValue % uRange ) + 1 ) % uRange );
+
+        return ( long )( ulongRand % uRange ) + min;
+    }
+
+    public static long NextLong( this System.Random random, long max )
+    {
+        return random.NextLong( 0, max );
+    }
+
+    public static long NextLong( this System.Random random )
+    {
+        return random.NextLong( long.MinValue, long.MaxValue );
     }
 }
