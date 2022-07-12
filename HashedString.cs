@@ -17,6 +17,8 @@ public class HashedString
     }
 }
 
+#if UNITY_EDITOR
+
 [CustomPropertyDrawer( typeof( HashedString ) )]
 public class HashedStringEditorUI : PropertyDrawer
 {
@@ -44,3 +46,5 @@ public class HashedStringEditorUI : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
+
+#endif

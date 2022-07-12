@@ -394,6 +394,16 @@ public class RateLimiter
         calls.Add( DateTime.Now );
         return true;
     }
+
+    public IEnumerator WaitForCall( IEnumerator action )
+    {
+        if( !CheckLimit() )
+        {
+            yield return new WaitForSeconds( calls.Back().Add( timeFrame ).Subtract( DateTime.Now ).Seconds );
+        }
+
+        yield return action;
+    }
 }
 
 public class TransformData
@@ -493,12 +503,12 @@ public static partial class Utility
     }
 }
 
-#if UNITY_EDITOR
 public class ReadOnlyAttribute : PropertyAttribute
 {
 
 }
 
+#if UNITY_EDITOR
 [CustomPropertyDrawer( typeof( ReadOnlyAttribute ) )]
 public class ReadOnlyDrawer : PropertyDrawer
 {

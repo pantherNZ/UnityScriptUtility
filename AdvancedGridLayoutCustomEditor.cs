@@ -1,6 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
+
 [CustomEditor( typeof( AdvancedGridLayout ) )]
 public class AdvancedGridLayoutCustomEditor : Editor
 {
@@ -24,3 +26,5 @@ public class AdvancedGridLayoutCustomEditor : Editor
 
     }
 }
+
+#endif
