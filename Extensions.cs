@@ -45,6 +45,15 @@ public static partial class Extensions
             list.AddRange( Enumerable.Repeat( value, size - cur ) );
     }
 
+    public static void Resize<T>( this List<T> list, int size, Func<T> generateValueFunc )
+    {
+        if( size < list.Count )
+            list.RemoveRange( size, list.Count - size );
+        else
+            while( size > list.Count )
+                list.Add( generateValueFunc() );
+    }
+
     public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
     {
         key = tuple.Key;
