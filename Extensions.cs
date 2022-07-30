@@ -50,8 +50,11 @@ public static partial class Extensions
         if( size < list.Count )
             list.RemoveRange( size, list.Count - size );
         else
+        {
+            list.Capacity = size;
             while( size > list.Count )
                 list.Add( generateValueFunc() );
+        }
     }
 
     public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
