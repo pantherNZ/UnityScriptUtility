@@ -4,15 +4,21 @@ using UnityEngine.EventSystems;
 
 public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
-    public Action<Collider> OnTriggerEnterEvent;
+#if PHYSICS_2D_PACKAGE
     public Action<Collider2D> OnTriggerEnter2DEvent;
-    public Action<Collider> OnTriggerExitEvent;
     public Action<Collider2D> OnTriggerExit2DEvent;
 
     public Action<Collision2D> OnCollisionEnter2DEvent;
-    public Action<Collision> OnCollisionEnterEvent;
     public Action<Collision2D> OnCollisionExit2DEvent;
+#endif
+
+#if PHYSICS_PACKAGE
+    public Action<Collider> OnTriggerEnterEvent;
+    public Action<Collider> OnTriggerExitEvent;
+
+    public Action<Collision> OnCollisionEnterEvent;
     public Action<Collision> OnCollisionExitEvent;
+#endif
 
     public Action<PointerEventData> OnPointerEnterEvent;
     public Action<PointerEventData> OnPointerExitEvent;
@@ -26,6 +32,7 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public Action<PointerEventData> OnDragEvent;
     public Action<PointerEventData> OnEndDragEvent;
 
+#if PHYSICS_2D_PACKAGE
     private void OnTriggerEnter2D( Collider2D collision )
     {
         OnTriggerEnter2DEvent?.Invoke( collision );
@@ -34,16 +41,6 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     private void OnTriggerExit2D( Collider2D collision )
     {
         OnTriggerExit2DEvent?.Invoke( collision );
-    }
-
-    private void OnTriggerEnter( Collider collision )
-    {
-        OnTriggerEnterEvent?.Invoke( collision );
-    }
-
-    private void OnTriggerExit( Collider collision )
-    {
-        OnTriggerExitEvent?.Invoke( collision );
     }
 
     private void OnCollisionEnter2D( Collision2D collision )
@@ -55,6 +52,18 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         OnCollisionExit2DEvent?.Invoke( collision );
     }
+#endif
+
+#if PHYSICS_PACKAGE
+    private void OnTriggerEnter( Collider collision )
+    {
+        OnTriggerEnterEvent?.Invoke( collision );
+    }
+
+    private void OnTriggerExit( Collider collision )
+    {
+        OnTriggerExitEvent?.Invoke( collision );
+    }
 
     private void OnCollisionEnter( Collision collision )
     {
@@ -65,6 +74,7 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         OnCollisionExitEvent?.Invoke( collision );
     }
+#endif
 
     void IPointerEnterHandler.OnPointerEnter( PointerEventData eventData )
     {

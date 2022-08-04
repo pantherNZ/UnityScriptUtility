@@ -92,7 +92,7 @@ public static partial class Utility
     {
         var resource = AssetDatabase.GetAssetPath( @object );
         var startIdx = resource.IndexOf( "Resources/" ) + 10;
-        resource = resource[startIdx..resource.LastIndexOf( '.' )];
+        resource = resource.Substring( startIdx, resource.LastIndexOf( '.' ) - startIdx );
         return resource;
     }
 #endif

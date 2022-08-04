@@ -1,0 +1,25 @@
+{
+    "name": "AssemblyDefinition",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "",
+            "define": "PHYSICS_PACKAGE"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "PHYSICS_2D_PACKAGE"
+        }
+    ],
+    "noEngineReferences": false
+}

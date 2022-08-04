@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+#if PHYSICS_PACKAGE
+
 [RequireComponent( typeof( Rigidbody ) )]
 public class CustomGravity : MonoBehaviour
 {
@@ -17,3 +19,5 @@ public class CustomGravity : MonoBehaviour
         m_rb.AddForce( gravity, ForceMode.Acceleration );
     }
 }
+
+#endif
