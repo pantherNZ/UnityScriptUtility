@@ -417,6 +417,12 @@ public static partial class Extensions
         return new Rect( ( corners[1] + corners[3] ) / 2.0f, scaledSize );
     }
 
+    public static Rect GetSceenSpaceRect( this RectTransform rt )
+    {
+        Vector2 size = Vector2.Scale( rt.rect.size, rt.lossyScale );
+        return new Rect( ( Vector2 )rt.position - ( size * 0.5f ), size );
+    }
+
     static public Vector2 TopLeft( this Rect rect )
     {
         return new Vector2( rect.xMin, rect.yMax );
