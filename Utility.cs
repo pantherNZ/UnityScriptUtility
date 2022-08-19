@@ -259,6 +259,22 @@ public static partial class Utility
         }
     }
 
+    public static IEnumerable<Pair<int, object>> EnumerateObj<T>( this T collection, int startIndex = 0 ) where T : IEnumerable
+    {
+        foreach( var item in collection )
+        {
+            yield return new Pair<int, object>( startIndex++, item );
+        }
+    }
+
+    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
+    {
+        foreach( Transform item in collection )
+        {
+            yield return new Pair<int, Transform>( startIndex++, item );
+        }
+    }
+
     public static Vector2 GetMouseOrTouchPos()
     {
         return Input.touchCount > 0 ? Input.GetTouch( 0 ).position : Input.mousePosition.ToVector2();
