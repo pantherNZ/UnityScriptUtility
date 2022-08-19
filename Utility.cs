@@ -418,6 +418,7 @@ public class RateLimiter
             yield return new WaitForSeconds( calls.Back().Add( timeFrame ).Subtract( DateTime.Now ).Seconds );
         }
 
+        calls.Add( DateTime.Now );
         yield return action;
     }
 }
