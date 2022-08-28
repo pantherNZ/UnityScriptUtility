@@ -111,6 +111,17 @@ public static class SaveGameSystem
         return true;
     }
 
+    public static bool DeleteGame( string name )
+    {
+        string fullPath = ConvertSaveNameToPath( name );
+
+        if( !File.Exists( fullPath ) )
+            return false;
+
+        File.Delete( fullPath );
+        return true;
+    }
+
     public static void AddSaveableComponent( ISavableComponent obj )
     {
         subscribers.Add( obj );
