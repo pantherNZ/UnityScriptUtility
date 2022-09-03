@@ -58,7 +58,7 @@ public static class SaveGameSystem
                 {
                     using( var writer = new BinaryWriter( memoryStream ) )
                     {
-                        writer.Write( ( char )( currentVersion ) );
+                        writer.Write( ( byte )( currentVersion ) );
                         foreach( var subscriber in subscribers )
                             subscriber.Serialise( writer );
                     }
