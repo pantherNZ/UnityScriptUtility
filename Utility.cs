@@ -307,7 +307,7 @@ public static partial class Utility
         return ForEachObjectOverPointer().Any( x => x.GetComponent< T >() != null );
     }
 
-    public static IEnumerable<GameObject> ForEachObjectOverPointer()
+    public static List<GameObject> GetObjectsOverPointer()
     {
         var eventData = new UnityEngine.EventSystems.PointerEventData( UnityEngine.EventSystems.EventSystem.current )
         {
@@ -315,9 +315,13 @@ public static partial class Utility
         };
         var raycastResults = new List<UnityEngine.EventSystems.RaycastResult>();
         UnityEngine.EventSystems.EventSystem.current.RaycastAll( eventData, raycastResults );
+        return raycastResults.Select( x => x.gameObject ).ToList();
+    }
 
-        foreach( var result in raycastResults )
-            yield return result.gameObject;
+    public static IEnumerable<GameObject> ForEachObjectOverPointer()
+    {
+        foreach( var result in GetObjectsOverPointer() )
+            yield return result;
     }
 
     public static int GetTextWidth( Text text )

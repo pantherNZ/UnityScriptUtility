@@ -21,19 +21,19 @@ public static partial class Utility
             private set { }
         }
 
-        private Dictionary<Func<KeyCode, bool>, Pair<int, Action>> entries = new Dictionary<Func<KeyCode, bool>, Pair<int, Action>>();
+        private readonly Dictionary<string, Pair<int, Action>> entries = new();
 
-        public void Request( Func<KeyCode, bool> inputRequest, KeyCode code, int priority, Action func )
+        public void Request( Func<bool> inputRequest, string key, int priority, Action func )
         {
-            if( inputRequest( code ) )
+            if( inputRequest() )
             {
-                if( entries.TryGetValue( inputRequest, out Pair<int, Action> found ) && found.First < priority )
+                if( entries.TryGetValue( key, out Pair<int, Action> found ) && found.First < priority )
                 {
-                    entries[inputRequest] = new Pair<int, Action>( priority, func );
+                    entries[key] = new Pair<int, Action>( priority, func );
                 }
                 else
                 {
-                    entries.Add( inputRequest, new Pair<int, Action>( priority, func ) );
+                    entries.Add( key, new Pair<int, Action>( priority, func ) );
                 }
             }
         }
