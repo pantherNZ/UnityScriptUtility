@@ -5,47 +5,45 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public static partial class Utility
+public class InputPriority : MonoBehaviour
 {
-    public class InputPriority
+    static InputPriority _Instance;
+    static public InputPriority Instance
     {
-        static InputPriority _Instance;
-        static public InputPriority Instance
-        {
-            get
-            {
-                if( _Instance == null )
-                    _Instance = new InputPriority();
-                return _Instance;
-            }
-            private set { }
-        }
+        get { return _Instance; }
+        private set { }
+    }
 
-        private readonly Dictionary<string, Pair<int, Action>> entries = new();
+    private readonly Dictionary<string, Pair<int, Action>> entries = new();
 
-        public void Request( Func<bool> inputRequest, string key, int priority, Action func )
+    private void Start()
+    {
+        _Instance = this;
+    }
+
+    public void Request( Func<bool> inputRequest, string key, int priority, Action func )
+    {
+        if( inputRequest() )
         {
-            if( inputRequest() )
+            if( entries.TryGetValue( key, out Pair<int, Action> found ) )
             {
-                if( entries.TryGetValue( key, out Pair<int, Action> found ) && found.First < priority )
-                {
+                if( found.First < priority )
                     entries[key] = new Pair<int, Action>( priority, func );
-                }
-                else
-                {
-                    entries.Add( key, new Pair<int, Action>( priority, func ) );
-                }
             }
-        }
-
-        private void LateUpdate()
-        {
-            foreach( var entry in entries.Values )
+            else
             {
-                entry.Second();
+                entries.Add( key, new Pair<int, Action>( priority, func ) );
             }
-
-            entries.Clear();
         }
+    }
+
+    private void LateUpdate()
+    {
+        foreach( var entry in entries.Values )
+        {
+            entry.Second();
+        }
+
+        entries.Clear();
     }
 }

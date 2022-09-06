@@ -18,12 +18,10 @@ public class InputPriorityButton : Button
             if( obj.TryGetComponent<InputPriorityButton>( out var button ) )
                 entries.TryAdd( button.priority, button );
 
-        entries.Values[^1].OnPointerClickBase( eventData );
-
-        //Utility.InputPriority.Instance.Request( () => true, key, priority, () =>
-        //{
-        //    base.OnPointerClick( eventData );
-        //} );
+        InputPriority.Instance.Request( () => true, key, priority, () =>
+        {
+            entries.Values[^1].OnPointerClickBase( eventData );
+        } );
     }
 
     public void OnPointerClickBase( PointerEventData eventData )
