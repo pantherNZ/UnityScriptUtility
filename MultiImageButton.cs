@@ -1,21 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent( typeof( MultiImageTargetGraphics ) )]
 public class MultiImageButton : Button
 {
     private Graphic[] graphics;
 
-    private MultiImageTargetGraphics targetGraphics;
-
-    protected override void Start()
-    {
-        base.Start();
-    }
-
     protected override void DoStateTransition( SelectionState state, bool instant )
     {
-        //get the graphics, if it could not get the graphics, return here
+        base.DoStateTransition( state, instant );
+
         if( !GetGraphics() )
             return;
 
@@ -32,7 +25,7 @@ public class MultiImageButton : Button
 
     private bool GetGraphics()
     {
-        if( !targetGraphics ) targetGraphics = GetComponent<MultiImageTargetGraphics>();
+        var targetGraphics = GetComponent<MultiImageTargetGraphics>();
         graphics = targetGraphics?.GetTargetGraphics;
         return graphics != null && graphics.Length > 0;
     }

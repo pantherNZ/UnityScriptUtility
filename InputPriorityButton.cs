@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InputPriorityButton : Button
+public class InputPriorityButton : MultiImageButton
 {
     public string key;
     public int priority;
@@ -17,6 +17,9 @@ public class InputPriorityButton : Button
         foreach( var obj in objects )
             if( obj.TryGetComponent<InputPriorityButton>( out var button ) )
                 entries.TryAdd( button.priority, button );
+
+        if( entries.Count == 0 )
+            entries.Add( priority, this );
 
         InputPriority.Instance.Request( () => true, key, priority, () =>
         {
