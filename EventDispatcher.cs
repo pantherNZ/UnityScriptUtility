@@ -26,6 +26,7 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     public Action<PointerEventData> OnPointerUpEvent;
     public Action<PointerEventData> OnDoubleClickEvent;
     public float doubleClickInterval = 0.5f;
+    public bool doubleClickUsePointerUp = false;
     float doubleClickTimer = 0.0f;
 
     public Action<PointerEventData> OnBeginDragEvent;
@@ -90,14 +91,24 @@ public class EventDispatcher : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         OnPointerDownEvent?.Invoke( eventData );
 
-        if( Time.time - doubleClickTimer <= doubleClickInterval )
-            OnDoubleClickEvent?.Invoke( eventData );
-        doubleClickTimer = Time.time;
+        if( !doubleClickUsePointerUp )
+        {
+            if( Time.time - doubleClickTimer <= doubleClickInterval )
+                OnDoubleClickEvent?.Invoke( eventData );
+            doubleClickTimer = Time.time;
+        }
     }
 
     void IPointerUpHandler.OnPointerUp( PointerEventData eventData )
     {
         OnPointerUpEvent?.Invoke( eventData );
+
+        if( doubleClickUsePointerUp )
+        {
+            if( Time.time - doubleClickTimer <= doubleClickInterval )
+                OnDoubleClickEvent?.Invoke( eventData );
+            doubleClickTimer = Time.time;
+        }
     }
 
     void IBeginDragHandler.OnBeginDrag( PointerEventData eventData )
