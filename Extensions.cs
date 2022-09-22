@@ -603,4 +603,17 @@ public static partial class Extensions
     {
         return random.NextLong( long.MinValue, long.MaxValue );
     }
+
+    public static bool StartsWithGet( this string str, string startsWith, out string secondPart )
+    {
+        var idx = str.IndexOf( startsWith );
+        if( idx != -1 )
+        {
+            secondPart = str.Substring( idx + startsWith.Length );
+            return true;
+        }
+
+        secondPart = string.Empty;
+        return false;
+    }
 }
