@@ -11,19 +11,20 @@ public class InputPriorityButton : MultiImageButton
 
     public override void OnPointerClick( PointerEventData eventData )
     {
-        SortedList<int, InputPriorityButton> entries = new();
+        SortedList<int, InputPriorityButton> entries = new SortedList<int, InputPriorityButton>();
         var objects = Utility.GetObjectsOverPointer();
 
         foreach( var obj in objects )
             if( obj.TryGetComponent<InputPriorityButton>( out var button ) )
-                entries.TryAdd( button.priority, button );
+                if( !entries.ContainsKey( button.priority ) )
+                    entries.Add( button.priority, button );
 
         if( entries.Count == 0 )
             entries.Add( priority, this );
 
         InputPriority.Instance.Request( () => true, key, priority, () =>
         {
-            entries.Values[^1].OnPointerClickBase( eventData );
+            entries.Values[entries.Values.Count - 1].OnPointerClickBase( eventData );
         } );
     }
 

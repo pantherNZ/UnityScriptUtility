@@ -14,7 +14,7 @@ public class InputPriority : MonoBehaviour
         private set { }
     }
 
-    private readonly Dictionary<string, Pair<int, Action>> entries = new();
+    private readonly Dictionary<string, Pair<int, Action>> entries = new Dictionary<string, Pair<int, Action>>();
 
     private void Start()
     {
