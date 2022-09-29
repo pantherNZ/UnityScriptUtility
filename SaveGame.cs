@@ -37,18 +37,12 @@ public static class SaveGameSystem
     public static List<string> GetSaveGames()
     {
         string folderPath = Application.persistentDataPath + folderName;
-        Debug.LogError( "Folder path: " + folderPath );
 
         if( !Directory.Exists( folderPath ) )
-        {
-            Debug.LogError( "Directory doesn't exist" );
             return new List<string>();
-        }
 
         var files = Directory.GetFiles( folderPath, "*" + fileExtension );
         files = Array.ConvertAll( files, x => ConvertPathToSaveName( x ) );
-        Debug.LogError( "Found " + files.Length.ToString() + " save game files" );
-        Debug.LogError( "Found " + Directory.GetFiles( folderPath ).Length.ToString() + " files in save folder" );
         return files.ToList();
     }
 
@@ -63,11 +57,8 @@ public static class SaveGameSystem
         if( !Directory.Exists( folderPath ) )
             Directory.CreateDirectory( folderPath );
 
-        Debug.LogError( "Saving, PATH: " + fullPath );
-
         try
         {
-            using var fileStream = File.Open( fullPath, FileMode.OpenOrCreate );
             using var memoryStream = new MemoryStream();
             using var writer = new BinaryWriter( memoryStream );
 
@@ -76,7 +67,7 @@ public static class SaveGameSystem
                 subscriber.Serialise( writer );
 
             var content = memoryStream.ToArray();
-            fileStream.Write( content, 0, content.Length );
+            File.WriteAllBytes( fullPath, content );
         }
         catch( Exception e )
         {
@@ -96,10 +87,7 @@ public static class SaveGameSystem
 
         try
         {
-            using var fileStream = File.Open( fullPath, FileMode.Open );
-            byte[] bytes = new byte[fileStream.Length];
-            fileStream.Read( bytes, 0, bytes.Length );
-
+            var bytes = File.ReadAllBytes( fullPath );
             using var memoryStream = new MemoryStream( bytes, writable: false );
             using var reader = new BinaryReader( memoryStream );
             var version = reader.ReadByte();
