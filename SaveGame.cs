@@ -7,9 +7,16 @@ using UnityEngine;
 
 public static class SaveGameSystem
 {
-    public const int currentVersion = 1;
-    public const string folderName = "/SavedData/";
-    public const string fileExtension = ".dat";
+    public static int currentVersion = 1;
+    public static string folderName = "/SavedData/";
+    public static string fileExtension = ".dat";
+
+    static public void Init( int version, string folder, string extension = ".dat" )
+    {
+        currentVersion = version;
+        folderName = string.Format( "/{0}{1}", folder, folder.Length > 0 ? "/" : string.Empty );
+        fileExtension = extension;
+    }
 
     static string ConvertSaveNameToPath( string name )
     {
@@ -30,12 +37,18 @@ public static class SaveGameSystem
     public static List<string> GetSaveGames()
     {
         string folderPath = Application.persistentDataPath + folderName;
+        Debug.LogError( "Folder path: " + folderPath );
 
         if( !Directory.Exists( folderPath ) )
+        {
+            Debug.LogError( "Directory doesn't exist" );
             return new List<string>();
+        }
 
         var files = Directory.GetFiles( folderPath, "*" + fileExtension );
         files = Array.ConvertAll( files, x => ConvertPathToSaveName( x ) );
+        Debug.LogError( "Found " + files.Length.ToString() + " save game files" );
+        Debug.LogError( "Found " + Directory.GetFiles( folderPath ).Length.ToString() + " files in save folder" );
         return files.ToList();
     }
 
@@ -50,23 +63,20 @@ public static class SaveGameSystem
         if( !Directory.Exists( folderPath ) )
             Directory.CreateDirectory( folderPath );
 
+        Debug.LogError( "Saving, PATH: " + fullPath );
+
         try
         {
-            using( var fileStream = File.Open( fullPath, FileMode.OpenOrCreate ) )
-            {
-                using( var memoryStream = new MemoryStream() )
-                {
-                    using( var writer = new BinaryWriter( memoryStream ) )
-                    {
-                        writer.Write( ( byte )( currentVersion ) );
-                        foreach( var subscriber in subscribers )
-                            subscriber.Serialise( writer );
-                    }
+            using var fileStream = File.Open( fullPath, FileMode.OpenOrCreate );
+            using var memoryStream = new MemoryStream();
+            using var writer = new BinaryWriter( memoryStream );
 
-                    var content = memoryStream.ToArray();
-                    fileStream.Write( content, 0, content.Length );
-                }
-            }
+            writer.Write( ( byte )( currentVersion ) );
+            foreach( var subscriber in subscribers )
+                subscriber.Serialise( writer );
+
+            var content = memoryStream.ToArray();
+            fileStream.Write( content, 0, content.Length );
         }
         catch( Exception e )
         {
@@ -86,21 +96,15 @@ public static class SaveGameSystem
 
         try
         {
-            using( var fileStream = File.Open( fullPath, FileMode.Open ) )
-            {
-                byte[] bytes = new byte[fileStream.Length];
-                fileStream.Read( bytes, 0, bytes.Length );
+            using var fileStream = File.Open( fullPath, FileMode.Open );
+            byte[] bytes = new byte[fileStream.Length];
+            fileStream.Read( bytes, 0, bytes.Length );
 
-                using( var memoryStream = new MemoryStream( bytes, writable: false ) )
-                {
-                    using( var reader = new BinaryReader( memoryStream ) )
-                    {
-                        var version = reader.ReadByte();
-                        foreach( var subscriber in subscribers )
-                            subscriber.Deserialise( version, reader );
-                    }
-                }
-            }
+            using var memoryStream = new MemoryStream( bytes, writable: false );
+            using var reader = new BinaryReader( memoryStream );
+            var version = reader.ReadByte();
+            foreach( var subscriber in subscribers )
+                subscriber.Deserialise( version, reader );
         }
         catch( Exception e )
         {
