@@ -44,14 +44,14 @@ public static partial class Utility
         return GetEnumValues<T>().Count();
     }
 
-    public static T ParseEnum<T>( string value ) where T : struct
+    public static T ParseEnum<T>( string value, bool ignoreCase = false ) where T : struct
     {
-        return ( T )Enum.Parse( typeof( T ), value );
+        return ( T )Enum.Parse( typeof( T ), value, ignoreCase );
     }
 
-    public static bool TryParseEnum<T>( string value, out T result ) where T : struct
+    public static bool TryParseEnum<T>( string value, out T result, bool ignoreCase = false ) where T : struct
     {
-        return Enum.TryParse( value, out result );
+        return Enum.TryParse( value, ignoreCase, out result );
     }
 
     // Parse a float, return default if failed
