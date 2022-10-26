@@ -47,6 +47,11 @@ public class EventDispatcherV2 : MonoBehaviour, IPointerEnterHandler, IPointerEx
         return true;
     }
 
+    private bool Filter( Collision2D collision )
+    {
+        return true;
+    }
+
     private void OnTriggerEnter2D( Collider2D collision )
     {
         if( Filter( collision ) )
@@ -74,6 +79,11 @@ public class EventDispatcherV2 : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
 #if PHYSICS_PACKAGE
     private bool Filter( Collider collision )
+    {
+        return true;
+    }
+
+    private bool Filter( Collision collision )
     {
         return true;
     }
