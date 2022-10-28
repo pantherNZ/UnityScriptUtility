@@ -616,4 +616,17 @@ public static partial class Extensions
         secondPart = string.Empty;
         return false;
     }
+
+    public static ulong ToU64( this BitArray ba )
+    {
+        Debug.Assert( ba.Length <= 64 );
+        var len = Math.Min( 64, ba.Count );
+        ulong n = 0;
+        for( int i = 0; i < len; i++ )
+        {
+            if( ba.Get( i ) )
+                n |= 1UL << i;
+        }
+        return n;
+    }
 }

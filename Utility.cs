@@ -9,6 +9,20 @@ using System.Security.Cryptography;
 
 public static partial class Utility
 {
+    public static uint SetBits( uint word, uint value, int pos, int size )
+    {
+        uint mask = ( ( ( ( uint )1 ) << size ) - 1 ) << pos;
+        word &= ~mask;
+        word |= ( value << pos ) & mask;
+        return word;
+    }
+
+    public static uint ReadBits( uint word, int pos, int size )
+    {
+        uint mask = ( ( ( ( uint )1 ) << size ) - 1 ) << pos;
+        return ( word & mask ) >> pos;
+    }
+
     public class DestroySelf : MonoBehaviour
     {
         public void DestroyMe()
