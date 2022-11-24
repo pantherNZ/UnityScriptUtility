@@ -304,6 +304,12 @@ public static partial class Utility
         return Input.GetMouseButtonUp( 0 ) || ( Input.touches.Length > 0 && Input.GetTouch( 0 ).phase == TouchPhase.Ended );
     }
 
+    public static bool IsMouseOrTouchHeld()
+    {
+        return Input.GetMouseButton( 0 ) || ( Input.touches.Length > 0 && 
+            ( Input.GetTouch( 0 ).phase == TouchPhase.Moved || Input.GetTouch( 0 ).phase == TouchPhase.Stationary ) );
+    }
+
     public static bool IsBackButtonDown()
     {
         if( Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor )

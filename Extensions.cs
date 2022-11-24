@@ -329,6 +329,13 @@ public static partial class Extensions
     public static Vector4 SetY( this Vector4 vec, float y ) { vec.y = y; return vec; }
     public static Vector4 SetZ( this Vector4 vec, float z ) { vec.z = z; return vec; }
     public static Vector4 SetW( this Vector4 vec, float w ) { vec.w = w; return vec; }
+    public static Vector2 XZ( this Vector3 vec ) { return new Vector2( vec.x, vec.z ); }
+    public static Vector2 YZ( this Vector3 vec ) { return new Vector2( vec.y, vec.z ); }
+    public static Vector2 ZX( this Vector3 vec ) { return new Vector2( vec.z, vec.x ); }
+    public static Vector2 YX( this Vector3 vec ) { return new Vector2( vec.y, vec.x ); }
+    public static Vector2 ZY( this Vector3 vec ) { return new Vector2( vec.z, vec.y ); }
+    public static Vector2 YX( this Vector2 vec ) { return new Vector2( vec.y, vec.x ); }
+
     public static Color SetR( this Color col, float r ) { col.r = r; return col; }
     public static Color SetG( this Color col, float g ) { col.g = g; return col; }
     public static Color SetB( this Color col, float b ) { col.b = b; return col; }
@@ -421,6 +428,23 @@ public static partial class Extensions
     {
         Vector2 size = Vector2.Scale( rt.rect.size, rt.lossyScale );
         return new Rect( ( Vector2 )rt.position - ( size * 0.5f ), size );
+    }
+
+    public static int GetChildIndex( this Transform transform )
+    {
+        return transform.parent.GetIndexOfChild( transform );
+    }
+
+    public static int GetIndexOfChild( this Transform transform, Transform child )
+    {
+        int idx = 0;
+        foreach( Transform c in transform )
+        {
+            if( c == child )
+                return idx;
+            idx++;
+        }
+        return -1;
     }
 
     static public Vector2 TopLeft( this Rect rect )
