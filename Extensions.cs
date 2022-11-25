@@ -421,7 +421,14 @@ public static partial class Extensions
         Vector3[] corners = new Vector3[4];
         rt.GetWorldCorners( corners );
         Vector2 scaledSize = new Vector2( rt.lossyScale.x * rt.rect.size.x, rt.lossyScale.y * rt.rect.size.y );
-        return new Rect( ( corners[1] + corners[3] ) / 2.0f, scaledSize );
+        return new Rect( corners[0], scaledSize );
+    }
+
+    static public Rect ConvertToWorldRect( this RectTransform rt, Rect localRect )
+    {
+        var min = rt.localToWorldMatrix.MultiplyPoint( localRect.min );
+        var max = rt.localToWorldMatrix.MultiplyPoint( localRect.max );
+        return new Rect( ( max + min ) / 2.0f, max - min );
     }
 
     public static Rect GetSceenSpaceRect( this RectTransform rt )
