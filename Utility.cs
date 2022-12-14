@@ -163,13 +163,25 @@ public static partial class Utility
             , a / 255.0f );
     }
 
-    public static Color ColourFromHex( int rgba )
+    public static Color ColourFromHex( uint rgba )
     {
         return new Color(
               ( ( rgba & 0xff000000 ) >> 0x18 ) / 255.0f
             , ( ( rgba & 0xff0000 ) >> 0x10 ) / 255.0F
             , ( ( rgba & 0xff00 ) >> 0x08 ) / 255.0f
             , ( rgba & 0xff ) / 255.0f );
+    }
+
+    public static Color ColourFromHexRGB( uint rgb )
+    {
+        if( ( rgb & 0xff000000 ) > 0 )
+            return ColourFromHex( rgb );
+
+        return new Color(
+              ( ( rgb & 0xff0000 ) >> 0x10 ) / 255.0F
+            , ( ( rgb & 0xff00 ) >> 0x08 ) / 255.0f
+            , ( rgb & 0xff ) / 255.0f
+            , 1.0f );
     }
 
     public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null )

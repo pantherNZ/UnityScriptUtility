@@ -93,7 +93,7 @@ public static partial class Extensions
 
     public static bool Remove<T>( this List<T> list, Predicate<T> match )
     {
-        foreach( var ( idx, x ) in Enumerate( list ) )
+        foreach( var (idx, x) in Enumerate( list ) )
         {
             if( match( x ) )
             {
@@ -341,7 +341,7 @@ public static partial class Extensions
     public static Color SetB( this Color col, float b ) { col.b = b; return col; }
     public static Color SetA( this Color col, float a ) { col.a = a; return col; }
 
-    public static Color ToColour( this int rgba )
+    public static Color ToColour( this uint rgba )
     {
         return Utility.ColourFromHex( rgba );
     }
@@ -503,25 +503,25 @@ public static partial class Extensions
 
     static public Vector3 GetScaledAxis( this Matrix4x4 mat, EAxis InAxis )
     {
-	    switch (InAxis )
-	    {
-	    case EAxis.X:
-		    return new Vector3( mat[0,0], mat[0,1], mat[0,2]);
+        switch( InAxis )
+        {
+            case EAxis.X:
+                return new Vector3( mat[0, 0], mat[0, 1], mat[0, 2] );
 
-	    case EAxis.Y:
-		    return new Vector3( mat[1,0], mat[1,1], mat[1,2]);
+            case EAxis.Y:
+                return new Vector3( mat[1, 0], mat[1, 1], mat[1, 2] );
 
             case EAxis.Z:
-		    return new Vector3( mat[2,0], mat[2,1], mat[2,2]);
+                return new Vector3( mat[2, 0], mat[2, 1], mat[2, 2] );
 
-	    default:
-            Debug.LogError( "GetScaledAxis: Invalid axis" );
-            return Vector3.zero;
-	    }
+            default:
+                Debug.LogError( "GetScaledAxis: Invalid axis" );
+                return Vector3.zero;
+        }
     }
 
-    static public void GetScaledAxes( this Matrix4x4 mat, out Vector3 X, out Vector3 Y, out Vector3 Z)
-     {
+    static public void GetScaledAxes( this Matrix4x4 mat, out Vector3 X, out Vector3 Y, out Vector3 Z )
+    {
         X = new Vector3( mat[0, 0], mat[0, 1], mat[0, 2] );
         Y = new Vector3( mat[1, 0], mat[1, 1], mat[1, 2] );
         Z = new Vector3( mat[2, 0], mat[2, 1], mat[2, 2] );
@@ -529,11 +529,11 @@ public static partial class Extensions
 
     static public Vector3 GetUnitAxis( this Matrix4x4 mat, EAxis InAxis )
     {
-	    return mat.GetScaledAxis( InAxis ).normalized;
+        return mat.GetScaledAxis( InAxis ).normalized;
     }
 
     static public void GetUnitAxes( this Matrix4x4 mat, Vector3 x, Vector3 y, Vector3 z )
-     {
+    {
         mat.GetScaledAxes( out x, out y, out z );
         x.Normalize();
         y.Normalize();
@@ -543,43 +543,43 @@ public static partial class Extensions
     static public void SetAxis( this Matrix4x4 mat, int i, Vector3 axis )
     {
         //checkSlow( i >= 0 && i <= 2 );
-        mat[i,0] = axis.x;
-        mat[i,1] = axis.y;
-        mat[i,2] = axis.z;
+        mat[i, 0] = axis.x;
+        mat[i, 1] = axis.y;
+        mat[i, 2] = axis.z;
     }
 
     static public void SetOrigin( this Matrix4x4 mat, Vector3 newOrigin )
     {
-        mat[3,0] = newOrigin.x;
-        mat[3,1] = newOrigin.y;
-        mat[3,2] = newOrigin.z;
+        mat[3, 0] = newOrigin.x;
+        mat[3, 1] = newOrigin.y;
+        mat[3, 2] = newOrigin.z;
     }
 
-    static public void SetAxes( this Matrix4x4 mat, Vector3? axis0 = null, Vector3? axis1 = null, Vector3? axis2 = null, Vector3? origin = null)
+    static public void SetAxes( this Matrix4x4 mat, Vector3? axis0 = null, Vector3? axis1 = null, Vector3? axis2 = null, Vector3? origin = null )
     {
         if( axis0 != null )
         {
-            mat[0,0] = axis0.Value.x;
-            mat[0,1] = axis0.Value.y;
-            mat[0,2] = axis0.Value.z;
+            mat[0, 0] = axis0.Value.x;
+            mat[0, 1] = axis0.Value.y;
+            mat[0, 2] = axis0.Value.z;
         }
         if( axis1 != null )
         {
-            mat[1,0] = axis1.Value.x;
-            mat[1,1] = axis1.Value.y;
-            mat[1,2] = axis1.Value.z;
+            mat[1, 0] = axis1.Value.x;
+            mat[1, 1] = axis1.Value.y;
+            mat[1, 2] = axis1.Value.z;
         }
-        if( axis2 != null ) 
+        if( axis2 != null )
         {
-            mat[2,0] = axis2.Value.x;
-            mat[2,1] = axis2.Value.y;
-            mat[2,2] = axis2.Value.z;
+            mat[2, 0] = axis2.Value.x;
+            mat[2, 1] = axis2.Value.y;
+            mat[2, 2] = axis2.Value.z;
         }
         if( origin != null )
         {
-            mat[3,0] = origin.Value.x;
-            mat[3,1] = origin.Value.y;
-            mat[3,2] = origin.Value.z;
+            mat[3, 0] = origin.Value.x;
+            mat[3, 1] = origin.Value.y;
+            mat[3, 2] = origin.Value.z;
         }
     }
 
@@ -619,7 +619,7 @@ public static partial class Extensions
             byte[] buf = new byte[8];
             random.NextBytes( buf );
             ulongRand = ( ulong )BitConverter.ToInt64( buf, 0 );
-        } 
+        }
         while( ulongRand > ulong.MaxValue - ( ( ulong.MaxValue % uRange ) + 1 ) % uRange );
 
         return ( long )( ulongRand % uRange ) + min;
@@ -659,5 +659,48 @@ public static partial class Extensions
                 n |= 1UL << i;
         }
         return n;
+    }
+
+    // String colour utility
+    public static string Bold( this string str ) { return $"<b>{str}</b>"; }
+    public static string Italic( this string str ) { return $"<i>{str}</i>"; }
+    public static string Size( this string str, int size ) { return $"<size={size}>{str}</size>"; }
+    public static string Aqua( this string str ) { return Colour( str, Color.cyan ); }
+    public static string Black( this string str ) { return Colour( str, Color.black ); }
+    public static string Blue( this string str ) { return Colour( str, Color.blue ); }
+    public static string Brown( this string str ) { return Colour( str, 0xa52a2aff ); }
+    public static string Cyan( this string str ) { return Aqua( str ); }
+    public static string DarkBlue( this string str ) { return Colour( str, 0x0000a0ff ); }
+    public static string Fuchsia( this string str ) { return Magenta( str ); }
+    public static string Green( this string str ) { return Colour( str, Color.green ); }
+    public static string Gray( this string str ) { return Colour( str, Color.gray ); }
+    public static string Grey( this string str ) { return Grey( str ); }
+    public static string LightBlue( this string str ) { return Colour( str, 0xadd8e6ff ); }
+    public static string Lime( this string str ) { return Colour( str, 0x00ff00ff ); }
+    public static string Magenta( this string str ) { return Colour( str, Color.magenta ); }
+    public static string Maroon( this string str ) { return Colour( str, 0x800000ff ); }
+    public static string Navy( this string str ) { return Colour( str, 0x000080ff ); }
+    public static string Olive( this string str ) { return Colour( str, 0x808000ff ); }
+    public static string Orange( this string str ) { return Colour( str, 0xffa500ff ); }
+    public static string Purple( this string str ) { return Colour( str, 0x800080ff ); }
+    public static string Red( this string str ) { return Colour( str, Color.red ); }
+    public static string Silver( this string str ) { return Colour( str, 0xc0c0c0ff ); }
+    public static string Teal( this string str ) { return Colour( str, 0x008080ff ); }
+    public static string White( this string str ) { return Colour( str, Color.white ); }
+    public static string Yellow( this string str ) { return Colour( str, Color.yellow ); }
+
+    public static string Colour( this string str, Color colour )
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGBA( colour )}>{str}</color>";
+    }
+
+    public static string Colour( this string str, uint rgba )
+    {
+        return Colour( str, Utility.ColourFromHex( rgba ) );
+    }
+
+    public static string ColourRGB( this string str, uint rgb )
+    {
+        return Colour( str, Utility.ColourFromHexRGB( rgb ) );
     }
 }
