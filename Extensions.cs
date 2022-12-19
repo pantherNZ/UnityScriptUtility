@@ -703,4 +703,9 @@ public static partial class Extensions
     {
         return Colour( str, Utility.ColourFromHexRGB( rgb ) );
     }
+
+    public static string Format( this string str, params object[] args )
+    {
+        return string.Format( str, args );
+    }
 }
