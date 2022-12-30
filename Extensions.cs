@@ -10,7 +10,15 @@ public static partial class Extensions
 {
     public static void Destroy( this GameObject gameObject )
     {
-        UnityEngine.Object.Destroy( gameObject );
+        if( Application.isEditor )
+            UnityEngine.Object.DestroyImmediate( gameObject );
+        else
+            UnityEngine.Object.Destroy( gameObject );
+    }
+
+    public static void DestroyGameObject( this Component component )
+    {
+        Destroy( component.gameObject );
     }
 
     public static void ToggleActive( this GameObject gameObject )
