@@ -121,7 +121,7 @@ public static partial class Utility
 
         var interp = targetScale - transform.localScale;
 
-        while( transform != null && ( targetScale - transform.localScale ).sqrMagnitude > 0.01f )
+        while( transform != null && ( targetScale - transform.localScale ).sqrMagnitude > 0.0001f )
         {
             var diff = targetScale - transform.localScale;
             var delta = Time.deltaTime * ( 1.0f / durationSec );
@@ -156,7 +156,7 @@ public static partial class Utility
 
         var interp = targetPosition - transform.position;
 
-        while( transform != null && ( targetPosition - transform.position ).sqrMagnitude > 0.01f )
+        while( transform != null && ( targetPosition - transform.position ).sqrMagnitude > 0.0001f )
         {
             var diff = targetPosition - transform.position;
             var delta = Time.deltaTime * ( 1.0f / durationSec );
@@ -197,7 +197,7 @@ public static partial class Utility
             yield return null;
         }
     }
-    // Path creator utility disabled by default, enable if you ahve the pathcreation plugin
+    // Path creator utility disabled by default, enable if you have the pathcreation plugin
     /*public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
     {
         mono.InterpolateAlongPath( mono.transform, path, durationSec );
@@ -264,5 +264,16 @@ public static partial class Utility
 
         if( transform != null )
             transform.localPosition = originalPos;
+    }
+
+    public static void CallWithDelay( this MonoBehaviour mono, float delaySec, Action action)
+    {
+        mono.StartCoroutine( CallWithDelay( delaySec, action ) );
+    }
+
+    public static IEnumerator CallWithDelay( float delaySec, Action action )
+    {
+        yield return new WaitForSeconds( delaySec );
+        action();
     }
 }
