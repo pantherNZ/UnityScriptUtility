@@ -328,6 +328,10 @@ public static partial class Extensions
     }
 #endif
 
+    public static Vector2 Set( this Vector2 vec, float val ) { return vec.SetX( val ).SetY( val ); }
+    public static Vector3 Set( this Vector3 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ); }
+    public static Vector4 Set( this Vector4 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ).SetW( val ); }
+
     public static Vector2 SetX( this Vector2 vec, float x ) { vec.x = x; return vec; }
     public static Vector2 SetY( this Vector2 vec, float y ) { vec.y = y; return vec; }
     public static Vector3 SetX( this Vector3 vec, float x ) { vec.x = x; return vec; }
