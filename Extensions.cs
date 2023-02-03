@@ -57,6 +57,14 @@ public static partial class Extensions
         }
     }
 
+    public static T MoveNextGet<T>( this IEnumerator<T> enumerator )
+    {
+        bool success = enumerator.MoveNext();
+        if( !success )
+            throw new System.OverflowException( "MoveNextGet failed to move to the next item" );
+        return enumerator.Current;
+    }
+
     public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
     {
         key = tuple.Key;
