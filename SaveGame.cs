@@ -306,6 +306,74 @@ public static partial class Extensions
     public static Int64 ReadInt64( this BinaryReader reader ) { return reader.ReadInt64(); }
     public static UInt64 ReadUInt64( this BinaryReader reader ) { return reader.ReadUInt64(); }
 
+    public static void Write( this BinaryWriter writer, object value )
+    {
+        if( value == null )
+        {
+            writer.Write( "{{NULL}}" );
+            return;
+        }
+        var type = value.GetType();
+        if( type.IsEnum )
+        {
+            var underlyingValue = ( dynamic )Convert.ChangeType( value, Enum.GetUnderlyingType( type ) );
+            Extensions.Write( writer, underlyingValue );
+        }
+        else if( type == typeof( Material ) )
+        {
+            Extensions.Write( writer, Utility.GetResourcePath( value as Material ) );
+        }
+        else if( type == typeof( Mesh ) )
+        {
+            var path = Utility.GetResourcePath( value as Mesh );
+            Extensions.Write( writer, path );
+        }
+        else if( type == typeof( PhysicMaterial ) )
+        {
+            Extensions.Write( writer, Utility.GetResourcePath( value as PhysicMaterial ) );
+        }
+        else if( type == typeof( string ) )
+        {
+            Extensions.Write( writer, value as string );
+        }
+        else
+        {
+            var dynamicValue = ( dynamic )value;
+            Extensions.Write( writer, dynamicValue );
+        }
+    }
+
+    public static object ReadObject( this BinaryReader reader, Type type )
+    {
+        if( type == typeof( string ) )
+        {
+            var str = reader.ReadString();
+            return str == "{{NULL}}" ? null : str;
+        }
+        if( type.IsEnum )
+        {
+            return lookupTable[Enum.GetUnderlyingType( type )].Invoke( reader );
+        }
+        else if( type == typeof( Material ) )
+        {
+            var path = reader.ReadString();
+            return Resources.Load<Material>( path );
+        }
+        else if( type == typeof( Mesh ) )
+        {
+            var path = reader.ReadString();
+            return Resources.Load<Mesh>( path );
+        }
+        else if( type == typeof( PhysicMaterial ) )
+        {
+            var path = reader.ReadString();
+            return Resources.Load<PhysicMaterial>( path );
+        }
+        else if( !lookupTable.ContainsKey( type ) )
+            Debug.LogError( "ReadObject Error: Failed to read object of type: " + type.ToString() );
+        return lookupTable[type].Invoke( reader );
+    }
+
     static readonly Dictionary<Type, Func< BinaryReader, object > > lookupTable = new Dictionary<Type, Func< BinaryReader, object >>
     {
         { typeof( bool ), ( reader ) => { return reader.ReadBoolean(); } },

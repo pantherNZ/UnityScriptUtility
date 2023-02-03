@@ -10,7 +10,15 @@ public static partial class Extensions
 {
     public static void Destroy( this GameObject gameObject )
     {
-        UnityEngine.Object.Destroy( gameObject );
+        if( Application.isEditor )
+            UnityEngine.Object.DestroyImmediate( gameObject );
+        else
+            UnityEngine.Object.Destroy( gameObject );
+    }
+
+    public static void DestroyGameObject( this Component component )
+    {
+        Destroy( component.gameObject );
     }
 
     public static void ToggleActive( this GameObject gameObject )
@@ -235,12 +243,7 @@ public static partial class Extensions
         return last;
     }
 
-    public static bool IsEmpty<T>( this List<T> list )
-    {
-        return list.Count == 0;
-    }
-
-    public static bool IsEmpty<T>( this HashSet<T> list )
+    public static bool IsEmpty<T>( this T list ) where T : ICollection
     {
         return list.Count == 0;
     }
@@ -250,6 +253,13 @@ public static partial class Extensions
         if( list.IsEmpty() )
             return defaultValue;
         return list[UnityEngine.Random.Range( 0, list.Count )];
+    }
+
+    public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default )
+    {
+        if( dict.IsEmpty() )
+            return defaultValue;
+        return dict.ElementAt( UnityEngine.Random.Range( 0, dict.Count ) );
     }
 
     public static List<T> RandomShuffle<T>( this List<T> list )
@@ -327,6 +337,10 @@ public static partial class Extensions
         return UnityEditor.AssetDatabase.GetAssetPath( textAsset );
     }
 #endif
+
+    public static Vector2 Set( this Vector2 vec, float val ) { return vec.SetX( val ).SetY( val ); }
+    public static Vector3 Set( this Vector3 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ); }
+    public static Vector4 Set( this Vector4 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ).SetW( val ); }
 
     public static Vector2 SetX( this Vector2 vec, float x ) { vec.x = x; return vec; }
     public static Vector2 SetY( this Vector2 vec, float y ) { vec.y = y; return vec; }
@@ -603,14 +617,25 @@ public static partial class Extensions
         transform.rotation = data.rotation;
     }
 
-    public static float SafeDivide( this float v, float denominator )
-    {
-        return denominator == 0.0f ? 0.0f : v / denominator;
-    }
+    public static short SafeDivide( this short v, short denominator ) { return ( short )( denominator == 0 ? 0 : v / denominator ); }
+    public static int SafeDivide( this int v, int denominator ) { return denominator == 0 ? 0 : v / denominator; }
+    public static long SafeDivide( this long v, long denominator ) { return denominator == 0L ? 0L : v / denominator; }
+    public static ushort SafeDivide( this ushort v, ushort denominator ) { return ( ushort )( denominator == 0 ? 0 : v / denominator ); }
+    public static uint SafeDivide( this uint v, uint denominator ) { return denominator == 0U ? 0U : v / denominator; }
+    public static ulong SafeDivide( this ulong v, ulong denominator ) { return denominator == 0UL ? 0UL : v / denominator; }
+    public static float SafeDivide( this float v, float denominator ) { return denominator == 0.0f ? 0.0f : v / denominator; }
+    public static double SafeDivide( this double v, double denominator ) { return denominator == 0.0d ? 0.0d : v / denominator; }
+    public static decimal SafeDivide( this decimal v, decimal denominator ) { return denominator == 0.0m ? 0.0m : v / denominator; }
+    public static byte SafeDivide( this byte v, byte denominator ) { return ( byte )( denominator == 0 ? 0 : v / denominator ); }
 
-    public static int SafeDivide( this int v, int denominator )
+    public static string ToSuperscriptString<T>( this T t ) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
     {
-        return denominator == 0 ? 0 : v / denominator;
+        return Utility.ToSuperscript( t.ToString() );
+    }
+    
+    public static string ToSubscriptString< T >( this T t ) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+    {
+        return Utility.ToSubscript( t.ToString() );
     }
 
     public static long NextLong( this System.Random random, long min, long max )

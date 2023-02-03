@@ -37,6 +37,11 @@ public static partial class Utility
         return ( ( a %= b ) < 0 ) ? a + b : a;
     }
 
+    public static float Mod( float a, float b )
+    {
+        return ( ( a %= b ) < 0.0f ) ? a + b : a;
+    }
+
     public static float Lerp( float a, float b, float interp ) { return a + ( b - a ) * interp; }
     public static int Lerp( int a, int b, float interp ) { return ( int )( a + ( b - a ) * interp ); }
     public static Vector2 Lerp( Vector2 a, Vector2 b, float interp ) {  return a + ( b - a ) * interp; }
@@ -84,6 +89,30 @@ public static partial class Utility
         return defaultValue;
     }
 
+    private const string SuperscriptDigits = "\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079";
+    private const string SubscriptDigits = "\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089";
+
+    public static string ToSuperscript( string text )
+    {
+        return new string( text.Select( x =>
+        {
+            if( x == '-' ) return '\u207B';
+            if( x == '.' ) return '\u2027';
+            var num = x - '0';
+            return ( num < 0 || num > 9 ) ? x : SuperscriptDigits[num];
+        }).ToArray() );
+    }
+
+    public static string ToSubscript( string text )
+    {
+        //text = text.Replace( ".", "  \u0323" );
+        return new string( text.Select( x =>
+        {
+            if( x == '-' ) return '\u208B';
+            var num = x - '0';
+            return ( num < 0 || num > 9 ) ? x : SubscriptDigits[num];
+        } ).ToArray() );
+    }
 
     public static void Swap<T>( ref T a, ref T b )
     {
@@ -378,6 +407,11 @@ public static partial class Utility
         using HashAlgorithm algorithm = SHA256.Create();
         var bytes = algorithm.ComputeHash( System.Text.Encoding.UTF8.GetBytes( inputString ) );
         return BitConverter.ToUInt32( bytes, 0 );
+    }
+
+    public static bool RandomBool()
+    {
+        return UnityEngine.Random.Range( 0, 100 ) < 50;
     }
 
 } // Utility namespace end
