@@ -136,39 +136,53 @@ public static partial class Utility
             transform.localScale = targetScale;
     }
 
-    public static void InterpolatePosition( this MonoBehaviour mono, Vector3 targetPosition, float durationSec )
+    private static Vector3 GetPosition( Transform t, bool local )
     {
-        mono.InterpolatePosition( mono.transform, targetPosition, durationSec );
+        return local ? t.localPosition : t.position;
     }
 
-    public static void InterpolatePosition( this MonoBehaviour mono, Transform transform, Vector3 targetPosition, float durationSec )
+    public static void InterpolatePosition( this MonoBehaviour mono, Vector3 targetPosition, float durationSec, bool localPosition = false  )
     {
-        mono.StartCoroutine( InterpolatePosition( transform, targetPosition, durationSec ) );
+        mono.InterpolatePosition( mono.transform, targetPosition, durationSec, localPosition );
     }
 
-    public static IEnumerator InterpolatePosition( Transform transform, Vector3 targetPosition, float durationSec )
+    public static void InterpolatePosition( this MonoBehaviour mono, Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false )
+    {
+        mono.StartCoroutine( InterpolatePosition( transform, targetPosition, durationSec, localPosition ) );
+    }
+
+    public static IEnumerator InterpolatePosition( Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false )
     {
         if( durationSec <= 0.0f )
         {
             Debug.LogError( "InterpolatePosition called with a negative or 0 duration" );
             yield return null;
         }
+        
+        var interp = targetPosition - GetPosition( transform, localPosition );
 
-        var interp = targetPosition - transform.position;
-
-        while( transform != null && ( targetPosition - transform.position ).sqrMagnitude > 0.0001f )
+        while( transform != null && ( targetPosition - GetPosition( transform, localPosition ) ).sqrMagnitude > 0.0001f )
         {
-            var diff = targetPosition - transform.position;
+            var diff = targetPosition - GetPosition( transform, localPosition );
             var delta = Time.deltaTime * ( 1.0f / durationSec );
-            transform.position = new Vector3(
-                transform.position.x + Mathf.Min( Mathf.Abs( diff.x ), Mathf.Abs( interp.x ) * delta ) * Mathf.Sign( diff.x ),
-                transform.position.y + Mathf.Min( Mathf.Abs( diff.y ), Mathf.Abs( interp.y ) * delta ) * Mathf.Sign( diff.y ),
-                transform.position.z + Mathf.Min( Mathf.Abs( diff.z ), Mathf.Abs( interp.z ) * delta ) * Mathf.Sign( diff.z ) );
+            var offset = new Vector3(
+                Mathf.Min( Mathf.Abs( diff.x ), Mathf.Abs( interp.x ) * delta ) * Mathf.Sign( diff.x ),
+                Mathf.Min( Mathf.Abs( diff.y ), Mathf.Abs( interp.y ) * delta ) * Mathf.Sign( diff.y ),
+                Mathf.Min( Mathf.Abs( diff.z ), Mathf.Abs( interp.z ) * delta ) * Mathf.Sign( diff.z ) );
+            if( localPosition )
+                transform.localPosition += offset;
+            else
+                transform.position += offset;
             yield return null;
         }
 
         if( transform != null )
-            transform.position = targetPosition;
+        {
+            if( localPosition )
+                transform.localPosition = targetPosition;
+            else
+                transform.position = targetPosition;
+        }
     }
 
     public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec )
