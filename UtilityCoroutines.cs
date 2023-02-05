@@ -141,17 +141,17 @@ public static partial class Utility
         return local ? t.localPosition : t.position;
     }
 
-    public static void InterpolatePosition( this MonoBehaviour mono, Vector3 targetPosition, float durationSec, bool localPosition = false  )
+    public static void InterpolatePosition( this MonoBehaviour mono, Vector3 targetPosition, float durationSec, bool localPosition = false, bool linear = true )
     {
-        mono.InterpolatePosition( mono.transform, targetPosition, durationSec, localPosition );
+        mono.InterpolatePosition( mono.transform, targetPosition, durationSec, localPosition, linear );
     }
 
-    public static void InterpolatePosition( this MonoBehaviour mono, Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false )
+    public static void InterpolatePosition( this MonoBehaviour mono, Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false, bool linear = true )
     {
-        mono.StartCoroutine( InterpolatePosition( transform, targetPosition, durationSec, localPosition ) );
+        mono.StartCoroutine( InterpolatePosition( transform, targetPosition, durationSec, localPosition, linear ) );
     }
 
-    public static IEnumerator InterpolatePosition( Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false )
+    public static IEnumerator InterpolatePosition( Transform transform, Vector3 targetPosition, float durationSec, bool localPosition = false, bool linear = true )
     {
         if( durationSec <= 0.0f )
         {
@@ -163,6 +163,9 @@ public static partial class Utility
 
         while( transform != null && ( targetPosition - GetPosition( transform, localPosition ) ).sqrMagnitude > 0.0001f )
         {
+            if( !linear )
+                interp = targetPosition - GetPosition( transform, localPosition );
+
             var diff = targetPosition - GetPosition( transform, localPosition );
             var delta = Time.deltaTime * ( 1.0f / durationSec );
             var offset = new Vector3(
