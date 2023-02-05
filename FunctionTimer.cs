@@ -7,6 +7,7 @@ public static partial class Utility
     class FunctionTimerHandler : MonoBehaviour
     {
         static FunctionTimerHandler functionTimerHandler;
+        public static bool HasInstance => functionTimerHandler != null;
         public static FunctionTimerHandler Instance
         {
             get
@@ -94,11 +95,14 @@ public static partial class Utility
 
         public static bool StopTimer( string name )
         {
-            return FunctionTimerHandler.Instance.RemoveTimer( name );
+            return FunctionTimerHandler.HasInstance && FunctionTimerHandler.Instance.RemoveTimer( name );
         }
 
         public static bool PauseTimer( string name )
         {
+            if( !FunctionTimerHandler.HasInstance )
+                return false;
+
             var timer = FunctionTimerHandler.Instance.GetTimer( name );
             if( timer == null )
                 return false;
@@ -108,6 +112,9 @@ public static partial class Utility
 
         public static bool ResumeTimer( string name )
         {
+            if( !FunctionTimerHandler.HasInstance )
+                return false;
+
             var timer = FunctionTimerHandler.Instance.GetTimer( name );
             if( timer == null )
                 return false;
@@ -117,7 +124,7 @@ public static partial class Utility
 
         public bool Stop()
         {
-            return FunctionTimerHandler.Instance.RemoveTimer( this );
+            return FunctionTimerHandler.HasInstance && FunctionTimerHandler.Instance.RemoveTimer( this );
         }
 
         public void Pause()
@@ -132,6 +139,8 @@ public static partial class Utility
 
         public static FunctionTimer GetTimer( string name )
         {
+            if( !FunctionTimerHandler.HasInstance )
+                return null;
             return FunctionTimerHandler.Instance.GetTimer( name );
         }
 
