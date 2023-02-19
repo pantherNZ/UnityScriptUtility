@@ -29,6 +29,11 @@ public static partial class Utility
         mono.StartCoroutine( FadeToBlack( mono.GetComponent<CanvasGroup>(), fadeDurationSec ) );
     }
 
+    public static void FadeToBlack( this MonoBehaviour mono, CanvasGroup group, float fadeDurationSec )
+    {
+        mono.StartCoroutine( FadeToBlack( group, fadeDurationSec ) );
+    }
+
     public static IEnumerator FadeFromBlack( CanvasGroup group, float fadeDurationSec )
     {
         if( fadeDurationSec <= 0.0f )
@@ -50,6 +55,11 @@ public static partial class Utility
     public static void FadeFromBlack( this MonoBehaviour mono, float fadeDurationSec )
     {
         mono.StartCoroutine( FadeFromBlack( mono.GetComponent<CanvasGroup>(), fadeDurationSec ) );
+    }
+
+    public static void FadeFromBlack( this MonoBehaviour mono, CanvasGroup group, float fadeDurationSec )
+    {
+        mono.StartCoroutine( FadeFromBlack( group, fadeDurationSec ) );
     }
 
     public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec )
