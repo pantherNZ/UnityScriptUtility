@@ -413,6 +413,16 @@ public static partial class Extensions
         return Quaternion.AngleAxis( angleDegrees, Vector3.forward ) * vec;
     }
 
+    public static Vector3 Clamp( this Vector3 vec, float min, float max )
+    {
+        var length = vec.magnitude;
+        if( length > max )
+            vec *= max / length;
+        if( length < min )
+            vec *= min / length;
+          return vec;
+    }
+
     public static Vector2 RandomPosition( this Rect rect )
     {
         return new Vector2(
