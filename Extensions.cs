@@ -248,6 +248,11 @@ public static partial class Extensions
         return list.Count == 0;
     }
 
+    public static bool IsEmpty<T>( this ICollection<T> list )
+    {
+        return list.Count == 0;
+    }
+
     public static T RandomItem<T>( this List<T> list, T defaultValue = default )
     {
         if( list.IsEmpty() )
@@ -256,6 +261,13 @@ public static partial class Extensions
     }
 
     public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default )
+    {
+        if( dict.IsEmpty() )
+            return defaultValue;
+        return dict.ElementAt( UnityEngine.Random.Range( 0, dict.Count ) );
+    }
+
+    public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default )
     {
         if( dict.IsEmpty() )
             return defaultValue;
