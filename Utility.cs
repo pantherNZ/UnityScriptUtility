@@ -500,6 +500,7 @@ public class TransformData
     public Vector3 scale;
 }
 
+[Serializable]
 public class Pair<T, U>
 {
     public Pair()
