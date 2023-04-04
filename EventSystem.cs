@@ -16,6 +16,11 @@ public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
         EventSystem.Instance.AddSubscriber( this );
     }
 
+    protected virtual void OnEnable()
+    {
+        EventSystem.Instance.AddSubscriber( this );
+    }
+
     protected virtual void OnDisable()
     {
         EventSystem.Instance.RemoveSubscriber( this );
