@@ -8,9 +8,9 @@ using UnityEngine;
 
 public static partial class Extensions
 {
-    public static void Destroy( this GameObject gameObject )
+    public static void Destroy( this GameObject gameObject, bool allowImmediate = false )
     {
-        if( Application.isEditor )
+        if( Application.isEditor && allowImmediate )
             UnityEngine.Object.DestroyImmediate( gameObject );
         else
             UnityEngine.Object.Destroy( gameObject );
