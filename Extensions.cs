@@ -8,9 +8,9 @@ using UnityEngine;
 
 public static partial class Extensions
 {
-    public static void Destroy( this GameObject gameObject )
+    public static void Destroy( this GameObject gameObject, bool allowImmediate = false )
     {
-        if( Application.isEditor )
+        if( Application.isEditor && allowImmediate )
             UnityEngine.Object.DestroyImmediate( gameObject );
         else
             UnityEngine.Object.Destroy( gameObject );
@@ -248,6 +248,11 @@ public static partial class Extensions
         return list.Count == 0;
     }
 
+    public static bool IsEmpty<T>( this ICollection<T> list )
+    {
+        return list.Count == 0;
+    }
+
     public static T RandomItem<T>( this List<T> list, T defaultValue = default )
     {
         if( list.IsEmpty() )
@@ -256,6 +261,13 @@ public static partial class Extensions
     }
 
     public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default )
+    {
+        if( dict.IsEmpty() )
+            return defaultValue;
+        return dict.ElementAt( UnityEngine.Random.Range( 0, dict.Count ) );
+    }
+
+    public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default )
     {
         if( dict.IsEmpty() )
             return defaultValue;
@@ -411,6 +423,16 @@ public static partial class Extensions
     public static Vector3 RotateZ( this Vector3 vec, float angleDegrees )
     {
         return Quaternion.AngleAxis( angleDegrees, Vector3.forward ) * vec;
+    }
+
+    public static Vector3 Clamp( this Vector3 vec, float min, float max )
+    {
+        var length = vec.magnitude;
+        if( length > max )
+            vec *= max / length;
+        if( length < min )
+            vec *= min / length;
+          return vec;
     }
 
     public static Vector2 RandomPosition( this Rect rect )

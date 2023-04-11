@@ -37,11 +37,16 @@ public class InputPriority : MonoBehaviour
         }
     }
 
+    public void Cancel( string key )
+    {
+        Request( () => true, key, int.MaxValue, null );
+    }
+
     private void LateUpdate()
     {
         foreach( var entry in entries.Values )
         {
-            entry.Second();
+            entry.Second?.Invoke();
         }
 
         entries.Clear();

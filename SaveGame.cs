@@ -306,6 +306,7 @@ public static partial class Extensions
     public static Int64 ReadInt64( this BinaryReader reader ) { return reader.ReadInt64(); }
     public static UInt64 ReadUInt64( this BinaryReader reader ) { return reader.ReadUInt64(); }
 
+#if DOTNET4
     public static void Write( this BinaryWriter writer, object value )
     {
         if( value == null )
@@ -342,6 +343,7 @@ public static partial class Extensions
             Extensions.Write( writer, dynamicValue );
         }
     }
+#endif
 
     public static object ReadObject( this BinaryReader reader, Type type )
     {
