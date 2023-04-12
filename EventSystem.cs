@@ -45,19 +45,40 @@ public class EventSystem
         private set { }
     }
 
+    private enum QueuedSubscriber
+    {
+        Add,
+        Remove,
+    }
+
     private readonly List<IEventReceiver> receivers = new List<IEventReceiver>();
     private readonly Queue<Pair<IBaseEvent, IEventReceiver>> queuedEvents = new Queue<Pair<IBaseEvent, IEventReceiver>>();
+    private readonly Queue<Pair<QueuedSubscriber, IEventReceiver>> queuedSubscribers = new Queue<Pair<QueuedSubscriber, IEventReceiver>>();
     private int iterationDepth = 0;
 
     public void AddSubscriber( IEventReceiver receiver )
     {
-        if( !receivers.Contains( receiver ) )
-            receivers.Add( receiver );
+        if( iterationDepth == 0 )
+        {
+            if( !receivers.Contains( receiver ) )
+                receivers.Add( receiver );
+        }
+        else
+        {
+            queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, IEventReceiver>( QueuedSubscriber.Add, receiver ) );
+        }
     }
 
     public void RemoveSubscriber( IEventReceiver receiver )
     {
-        receivers.Remove( receiver );
+        if( iterationDepth == 0 )
+        {
+            receivers.Remove( receiver );
+        }
+        else
+        {
+            queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, IEventReceiver>( QueuedSubscriber.Remove, receiver ) );
+        }
     }
 
     public void TriggerEvent( IBaseEvent e )
@@ -69,25 +90,47 @@ public class EventSystem
     {
         iterationDepth++;
 
+        var numRecievers = receivers.Count;
         foreach( var receiver in receivers )
+        {
             if( receiver != null && receiver != callerToIgnore )
+            {
                 receiver.OnEventReceived( e );
+                Debug.Assert( numRecievers == receivers.Count );
+            }
+        }
 
         iterationDepth--;
 
-        if( iterationDepth == 0 && queuedEvents.Count > 0 )
+        if( iterationDepth == 0 )
         {
-            int safety = 0;
-            while( queuedEvents.Count > 0 && safety++ <= 100 )
+            if( queuedEvents.Count > 0 )
             {
-                var queuedEvent = queuedEvents.Dequeue();
-                TriggerEvent( queuedEvent.First, queuedEvent.Second );
+                int safety = 0;
+                while( queuedEvents.Count > 0 && safety++ <= 100 )
+                {
+                    var queuedEvent = queuedEvents.Dequeue();
+                    TriggerEvent( queuedEvent.First, queuedEvent.Second );
+                }
+
+                if( safety >= 100 )
+                    Debug.LogError( "EventSystem hit recursion limit with queue events" );
+
+                queuedEvents.Clear();
             }
 
-            if( safety >= 100 )
-                Debug.LogError( "EventSystem hit recursion limit with queue events" );
+            if( queuedSubscribers.Count > 0 )
+            {
+                foreach( var queued in queuedSubscribers )
+                {
+                    if( queued.First == QueuedSubscriber.Add )
+                        AddSubscriber( queued.Second );
+                    else
+                        RemoveSubscriber( queued.Second );
+                }
 
-            queuedEvents.Clear();
+                queuedSubscribers.Clear();
+            }
         }
     }
 
