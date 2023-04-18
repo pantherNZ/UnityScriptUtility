@@ -18,15 +18,19 @@ public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
 
     protected virtual void OnEnable()
     {
-        EventSystem.Instance.AddSubscriber( this );
+        if( modifyListenerWithEnableDisable )
+            EventSystem.Instance.AddSubscriber( this );
     }
 
     protected virtual void OnDisable()
     {
-        EventSystem.Instance.RemoveSubscriber( this );
+        if( modifyListenerWithEnableDisable )
+            EventSystem.Instance.RemoveSubscriber( this );
     }
 
     public abstract void OnEventReceived( IBaseEvent e );
+
+    public static bool modifyListenerWithEnableDisable = true;
 }
 
 public class EventSystem
