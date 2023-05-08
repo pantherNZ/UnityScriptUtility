@@ -661,6 +661,7 @@ namespace TMPro
             RefreshShownValue();
         }
 
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -669,6 +670,7 @@ namespace TMPro
                 RefreshShownValue();
             }
         }
+#endif
 
         protected override void OnDisable()
         {
