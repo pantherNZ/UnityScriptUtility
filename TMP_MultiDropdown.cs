@@ -600,7 +600,7 @@ namespace TMPro
             }
             set
             {
-                SetValues( values );
+                SetValues( value );
             }
         }
 

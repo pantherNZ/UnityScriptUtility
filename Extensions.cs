@@ -65,6 +65,8 @@ public static partial class Extensions
         }
     }
 
+    // Be careful using this that you pass it IEnumerator<T> and not List<T>.Enumerator
+    // https://codeblog.jonskeet.uk/2010/07/27/iterate-damn-you/
     public static T MoveNextGet<T>( this IEnumerator<T> enumerator )
     {
         bool success = enumerator.MoveNext();
