@@ -606,12 +606,9 @@ namespace TMPro
 
         public bool IsExpanded => m_Dropdown != null;
 
-        public void SetValuesWithoutNotify( List<int> input )
+        public void SetValuesWithoutNotify( ReadOnlyCollection<int> input )
         {
-            if( input == null )
-                input = new List<int>();
-
-            SetValues( input.AsReadOnly(), sendCallback: false );
+            SetValues( input, sendCallback: false );
         }
 
         private void SetValues( ReadOnlyCollection<int> values, bool sendCallback = true )
@@ -1227,6 +1224,7 @@ namespace TMPro
                 m_Values.Remove( num );
             }
 
+            m_OnValuesChanged.Invoke( m_Values );
             RefreshShownValue();
         }
     }
