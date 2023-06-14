@@ -372,6 +372,22 @@ public static partial class Extensions
     public static Vector2 ZY( this Vector3 vec ) { return new Vector2( vec.z, vec.y ); }
     public static Vector2 YX( this Vector2 vec ) { return new Vector2( vec.y, vec.x ); }
 
+    public static Vector2Int Set( this Vector2Int vec, int val ) { return vec.SetX( val ).SetY( val ); }
+    public static Vector3Int Set( this Vector3Int vec, int val ) { return vec.SetX( val ).SetY( val ).SetZ( val ); }
+
+    public static Vector2Int SetX( this Vector2Int vec, int x ) { vec.x = x; return vec; }
+    public static Vector2Int SetY( this Vector2Int vec, int y ) { vec.y = y; return vec; }
+    public static Vector3Int SetX( this Vector3Int vec, int x ) { vec.x = x; return vec; }
+    public static Vector3Int SetY( this Vector3Int vec, int y ) { vec.y = y; return vec; }
+    public static Vector3Int SetZ( this Vector3Int vec, int z ) { vec.z = z; return vec; }
+    public static Vector2Int XZ( this Vector3Int vec ) { return new Vector2Int( vec.x, vec.z ); }
+    public static Vector2Int YZ( this Vector3Int vec ) { return new Vector2Int( vec.y, vec.z ); }
+    public static Vector2Int ZX( this Vector3Int vec ) { return new Vector2Int( vec.z, vec.x ); }
+    public static Vector2Int YX( this Vector3Int vec ) { return new Vector2Int( vec.y, vec.x ); }
+    public static Vector2Int ZY( this Vector3Int vec ) { return new Vector2Int( vec.z, vec.y ); }
+    public static Vector2Int YX( this Vector2Int vec ) { return new Vector2Int( vec.y, vec.x ); }
+
+
     public static Color SetR( this Color col, float r ) { col.r = r; return col; }
     public static Color SetG( this Color col, float g ) { col.g = g; return col; }
     public static Color SetB( this Color col, float b ) { col.b = b; return col; }
@@ -387,12 +403,20 @@ public static partial class Extensions
     public static Vector3 ToVector3( this Vector4 vec ) { return new Vector3( vec.x, vec.y, vec.z ); }
     public static Vector3 ToVector3( this Vector2 vec, float z = 0.0f ) { return new Vector3( vec.x, vec.y, z ); }
     public static Vector2 ToVector2( this Vector2Int vec ) { return new Vector2( vec.x, vec.y ); }
+    public static Vector3 ToVector3( this Vector3Int vec ) { return new Vector3( vec.x, vec.y, vec.z ); }
 
     public static Vector2Int ToVector2Int( this Vector2 vec, bool round = false )
     {
         if( round )
             return new Vector2Int( Mathf.RoundToInt( vec.x ), Mathf.RoundToInt( vec.y ) );
         return new Vector2Int( Mathf.FloorToInt( vec.x ), Mathf.FloorToInt( vec.y ) );
+    }
+
+    public static Vector3Int ToVector3Int( this Vector3 vec, bool round = false )
+    {
+        if( round )
+            return new Vector3Int( Mathf.RoundToInt( vec.x ), Mathf.RoundToInt( vec.y ), Mathf.RoundToInt( vec.z ) );
+        return new Vector3Int( Mathf.FloorToInt( vec.x ), Mathf.FloorToInt( vec.y ), Mathf.RoundToInt( vec.z ) );
     }
 
     public static float Angle( this Vector2 vec )
