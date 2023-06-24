@@ -306,30 +306,6 @@ public static partial class Utility
         return obj;
     }
 
-    public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection, int startIndex = 0 )
-    {
-        foreach( var item in collection ) 
-        { 
-            yield return new Pair<int, T>( startIndex++, item ); 
-        }
-    }
-
-    public static IEnumerable<Pair<int, object>> EnumerateObj<T>( this T collection, int startIndex = 0 ) where T : IEnumerable
-    {
-        foreach( var item in collection )
-        {
-            yield return new Pair<int, object>( startIndex++, item );
-        }
-    }
-
-    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
-    {
-        foreach( Transform item in collection )
-        {
-            yield return new Pair<int, Transform>( startIndex++, item );
-        }
-    }
-
     public static Vector2 GetMouseOrTouchPos()
     {
         return Input.touchCount > 0 ? Input.GetTouch( 0 ).position : Input.mousePosition.ToVector2();
@@ -587,6 +563,17 @@ public static partial class Utility
         while( iteratorA.MoveNext() && iteratorB.MoveNext() )
         {
             yield return new Pair<A, B>( iteratorA.Current, iteratorB.Current );
+        }
+    }
+
+    public static IEnumerable<Tuple<A, B, C>> Zip<A, B, C>( this IEnumerable<A> a, IEnumerable<B> b, IEnumerable<C> c )
+    {
+        using var iteratorA = a.GetEnumerator();
+        using var iteratorB = b.GetEnumerator();
+        using var iteratorC = c.GetEnumerator();
+        while( iteratorA.MoveNext() && iteratorB.MoveNext() && iteratorC.MoveNext() )
+        {
+            yield return new Tuple<A, B, C>( iteratorA.Current, iteratorB.Current, iteratorC.Current );
         }
     }
 }

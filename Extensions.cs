@@ -16,11 +16,6 @@ public static partial class Extensions
             UnityEngine.Object.Destroy( gameObject );
     }
 
-    public static void DestroyGameObject( this Component component )
-    {
-        Destroy( component.gameObject );
-    }
-
     public static void ToggleActive( this GameObject gameObject )
     {
         gameObject.SetActive( !gameObject.activeSelf );
@@ -484,6 +479,38 @@ public static partial class Extensions
             yield return new Tuple<int, T>( counter, item );
             counter++;
         }
+    }
+
+    public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection, int startIndex = 0 )
+    {
+        foreach( var item in collection )
+        {
+            yield return new Pair<int, T>( startIndex++, item );
+        }
+    }
+
+    public static IEnumerable<Pair<int, object>> EnumerateObj<T>( this T collection, int startIndex = 0 ) where T : IEnumerable
+    {
+        foreach( var item in collection )
+        {
+            yield return new Pair<int, object>( startIndex++, item );
+        }
+    }
+
+    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
+    {
+        foreach( Transform item in collection )
+        {
+            yield return new Pair<int, Transform>( startIndex++, item );
+        }
+    }
+
+    public static T RandomItem<T>( this IEnumerable<T> collection, T defaultValue = default )
+    {
+        var length = collection.Count();
+        if( length == 0 )
+            return defaultValue;
+        return collection.ElementAtOrDefault( UnityEngine.Random.Range( 0, length ) );
     }
 
     static public Rect GetWorldRect( this RectTransform rt )
