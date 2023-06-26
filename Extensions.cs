@@ -471,12 +471,12 @@ public static partial class Extensions
         return rect1.Overlaps( rect2 );
     }
 
-    public static IEnumerable<Tuple<int, T>> Enumerate<T>( this IEnumerable<T> collection )
+    public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection )
     {
         int counter = 0;
         foreach( var item in collection )
         {
-            yield return new Tuple<int, T>( counter, item );
+            yield return new Pair<int, T>( counter, item );
             counter++;
         }
     }
