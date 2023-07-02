@@ -551,6 +551,13 @@ public static partial class Extensions
         return -1;
     }
 
+    public static void Match( this Transform transform, Transform other )
+    {
+        transform.position = other.position;
+        transform.localScale = other.localScale;
+        transform.rotation = other.rotation;
+    }
+
     static public Vector2 TopLeft( this Rect rect )
     {
         return new Vector2( rect.xMin, rect.yMax );
