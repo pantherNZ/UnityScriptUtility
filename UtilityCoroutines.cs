@@ -198,17 +198,17 @@ public static partial class Utility
         }
     }
 
-    public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec )
+    public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec, bool localRotation = true, bool linear = true )
     {
-        mono.InterpolateRotation( mono.transform, rotation, durationSec );
+        mono.InterpolateRotation( mono.transform, rotation, durationSec, localRotation, linear );
     }
 
-    public static void InterpolateRotation( this MonoBehaviour mono, Transform transform, Vector3 rotation, float durationSec )
+    public static void InterpolateRotation( this MonoBehaviour mono, Transform transform, Vector3 rotation, float durationSec, bool localRotation = true, bool linear = true )
     {
-        mono.StartCoroutine( InterpolateRotation( transform, rotation, durationSec ) );
+        mono.StartCoroutine( InterpolateRotation( transform, rotation, durationSec, localRotation, linear ) );
     }
 
-    public static IEnumerator InterpolateRotation( Transform transform, Vector3 rotation, float durationSec )
+    public static IEnumerator InterpolateRotation( Transform transform, Vector3 rotation, float durationSec, bool localRotation = true, bool linear = true )
     {
         if( durationSec <= 0.0f )
         {
@@ -219,11 +219,14 @@ public static partial class Utility
         float timer = 0.0f;
         while( transform != null && timer < durationSec )
         {
-            timer += Time.deltaTime;
-            transform.Rotate( rotation * Time.deltaTime / durationSec );
+            var timeDiff = Mathf.Min( durationSec - timer, Time.deltaTime ); ;
+            timer += timeDiff;
+            var interp = timeDiff / durationSec;
+            transform.Rotate( rotation * interp, localRotation ? Space.Self : Space.World );
             yield return null;
         }
     }
+
     // Path creator utility disabled by default, enable if you have the pathcreation plugin
     /*public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
     {
