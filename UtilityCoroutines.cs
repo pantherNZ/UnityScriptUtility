@@ -6,13 +6,15 @@ using UnityEngine.UI;
 
 public static partial class Utility
 {
-    public static IEnumerator FadeToBlack( CanvasGroup group, float fadeDurationSec )
+    public static IEnumerator FadeToBlack( CanvasGroup group, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
         if( fadeDurationSec <= 0.0f )
         {
             Debug.LogError( "FadeToBlack called with a negative or 0 duration" );
             yield return null;
         }
+
+        group.gameObject.SetActive( true );
 
         while( group != null && group.alpha > 0.0f )
         {
@@ -22,16 +24,19 @@ public static partial class Utility
 
         if (group != null)
             group.SetVisibility( false );
+
+        if( disableObjectOnFinish )
+            group.gameObject.SetActive( false );
     }
 
-    public static void FadeToBlack( this MonoBehaviour mono, float fadeDurationSec )
+    public static void FadeToBlack( this MonoBehaviour mono, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
-        mono.StartCoroutine( FadeToBlack( mono.GetComponent<CanvasGroup>(), fadeDurationSec ) );
+        mono.StartCoroutine( FadeToBlack( mono.GetComponent<CanvasGroup>(), fadeDurationSec, disableObjectOnFinish ) );
     }
 
-    public static void FadeToBlack( this MonoBehaviour mono, CanvasGroup group, float fadeDurationSec )
+    public static void FadeToBlack( this MonoBehaviour mono, CanvasGroup group, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
-        mono.StartCoroutine( FadeToBlack( group, fadeDurationSec ) );
+        mono.StartCoroutine( FadeToBlack( group, fadeDurationSec, disableObjectOnFinish ) );
     }
 
     public static IEnumerator FadeFromBlack( CanvasGroup group, float fadeDurationSec )
@@ -41,6 +46,8 @@ public static partial class Utility
             Debug.LogError( "FadeFromBlack called with a negative or 0 duration" );
             yield return null;
         }
+
+        group.gameObject.SetActive( true );
 
         while( group != null && group.alpha < 1.0f )
         {
@@ -62,32 +69,32 @@ public static partial class Utility
         mono.StartCoroutine( FadeFromBlack( group, fadeDurationSec ) );
     }
 
-    public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec )
+    public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
-        mono.FadeToColour( mono.GetComponent<Graphic>(), colour, fadeDurationSec );
+        mono.FadeToColour( mono.GetComponent<Graphic>(), colour, fadeDurationSec, disableObjectOnFinish );
     }
 
-    public static void FadeToColour( this MonoBehaviour mono, Graphic image, Color colour, float fadeDurationSec )
+    public static void FadeToColour( this MonoBehaviour mono, Graphic image, Color colour, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
-        mono.FadeToColour( image, colour, fadeDurationSec, Lerp );
+        mono.FadeToColour( image, colour, fadeDurationSec, Lerp, disableObjectOnFinish );
     }
 
-    public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator )
+    public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator, bool disableObjectOnFinish = false )
     {
-        mono.FadeToColour( mono.GetComponent<Graphic>(), colour, fadeDurationSec, interpolator );
+        mono.FadeToColour( mono.GetComponent<Graphic>(), colour, fadeDurationSec, interpolator, disableObjectOnFinish );
     }
 
-    public static void FadeToColour( this MonoBehaviour mono, Graphic image, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator )
+    public static void FadeToColour( this MonoBehaviour mono, Graphic image, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator, bool disableObjectOnFinish = false )
     {
-        mono.StartCoroutine( FadeToColour( image, colour, fadeDurationSec, interpolator ) );
+        mono.StartCoroutine( FadeToColour( image, colour, fadeDurationSec, interpolator, disableObjectOnFinish ) );
     }
 
-    public static IEnumerator FadeToColour( Graphic image, Color colour, float fadeDurationSec )
+    public static IEnumerator FadeToColour( Graphic image, Color colour, float fadeDurationSec, bool disableObjectOnFinish = false )
     {
-        return FadeToColour( image, colour, fadeDurationSec, Lerp );
+        return FadeToColour( image, colour, fadeDurationSec, Lerp, disableObjectOnFinish );
     }
 
-    public static IEnumerator FadeToColour( Graphic image, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator )
+    public static IEnumerator FadeToColour( Graphic image, Color colour, float fadeDurationSec, Func<float, float, float, float> interpolator, bool disableObjectOnFinish = false )
     {
         if( fadeDurationSec <= 0.0f )
         {
@@ -99,6 +106,8 @@ public static partial class Utility
         if( image == null )
             yield break;
 
+        image.gameObject.SetActive( true );
+
         var startColour = image.color;
 
         for( float interp = 0.0f; interp < 1.0f && image != null; interp += Time.deltaTime * ( 1.0f / fadeDurationSec ) )
@@ -109,6 +118,9 @@ public static partial class Utility
 
         if( image != null )
             image.color = colour;
+
+        if( disableObjectOnFinish )
+            image.gameObject.SetActive( false );
     }
 
     public static void InterpolateScale( this MonoBehaviour mono, Vector3 targetScale, float durationSec )

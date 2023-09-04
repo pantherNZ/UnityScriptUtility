@@ -30,7 +30,7 @@ public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
 
     public abstract void OnEventReceived( IBaseEvent e );
 
-    public static bool modifyListenerWithEnableDisable = true;
+    public bool modifyListenerWithEnableDisable = true;
 }
 
 public class EventSystem
