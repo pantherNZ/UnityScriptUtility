@@ -25,6 +25,12 @@ public static partial class Utility
 
         public FunctionTimer AddTimer( FunctionTimer timer )
         {
+            if( timer.duration <= 0.0f )
+            {
+                timer.action();
+                return null;
+            }
+
             timerList.Add( timer );
             return timerList.Back();
         }
