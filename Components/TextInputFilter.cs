@@ -30,10 +30,5 @@ public class TextInputFilter : MonoBehaviour
 
             inputField.SetTextWithoutNotify( newValue );
         } );
-
-        //GetComponent<TMPro.TMP_InputField>().onValidateInput += delegate ( string input, int charIndex, char addedChar )
-        //{
-        //   
-        //};
     }
 }

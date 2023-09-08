@@ -19,6 +19,11 @@
             "name": "com.unity.modules.physics2d",
             "expression": "",
             "define": "PHYSICS_2D_PACKAGE"
+        },
+        {
+            "name": "PathCreator",
+            "expression": "",
+            "define": "PATH_CREATOR_PACKAGE"
         }
     ],
     "noEngineReferences": false

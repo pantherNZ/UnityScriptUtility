@@ -8,9 +8,9 @@ public class HashedString
     public string name;
     [ReadOnly] public int hash;
 
-    HashedString() { }
+    public HashedString() { }
 
-    HashedString( string _name )
+    public HashedString( string _name )
     {
         name = _name;
         hash = ( int )Utility.GetHashSHA256( name );

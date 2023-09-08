@@ -42,12 +42,6 @@ public static partial class Utility
         return ( ( a %= b ) < 0.0f ) ? a + b : a;
     }
 
-    public static float Lerp( float a, float b, float interp ) { return a + ( b - a ) * interp; }
-    public static int Lerp( int a, int b, float interp ) { return ( int )( a + ( b - a ) * interp ); }
-    public static Vector2 Lerp( Vector2 a, Vector2 b, float interp ) {  return a + ( b - a ) * interp; }
-    public static Vector3 Lerp( Vector3 a, Vector3 b, float interp ) {  return a + ( b - a ) * interp; }
-    public static Vector4 Lerp( Vector4 a, Vector4 b, float interp ) {  return a + ( b - a ) * interp; }
-
     public static Vector2 Vector2FromAngle( float angleDegrees )
     {
         return new Vector2( Mathf.Cos( angleDegrees * Mathf.Deg2Rad ), Mathf.Sin( angleDegrees * Mathf.Deg2Rad ) );
@@ -171,15 +165,16 @@ public static partial class Utility
         return new Color( r, g, b, 1.0f );
     }
 
-    public static Color InterpolateColour( Color a, Color b, float t, Func< float, float, float, float > interpolator )
+    public static Color InterpolateColour( Color a, Color b, float t, EasingFunction easingFunction = null )
     {
         Color.RGBToHSV( a, out float h1, out float s1, out float v1 );
         Color.RGBToHSV( b, out float h2, out float s2, out float v2 );
-        float h = interpolator( h1, h2, t );
-        float s = interpolator( s1, s2, t );
-        float v = interpolator( v1, v2, t );
+        t = easingFunction != null ? easingFunction( t ) : t;
+        float h = Lerp( h1, h2, t );
+        float s = Lerp( s1, s2, t );
+        float v = Lerp( v1, v2, t );
         var colour = Color.HSVToRGB( h, s, v );
-        colour.a = interpolator( a.a, b.a, t );
+        colour.a = Lerp( a.a, b.a, t );
         return colour;
     }
 
@@ -248,41 +243,6 @@ public static partial class Utility
         Debug.DrawLine( rect.TopRight(), rect.BottomRight(), colour.Value );
         Debug.DrawLine( rect.BottomRight(), rect.BottomLeft(), colour.Value );
         Debug.DrawLine( rect.BottomLeft(), rect.TopLeft(), colour.Value );
-    }
-
-    public class FunctionComponent : MonoBehaviour
-    {
-        public static void Create( GameObject obj, Action action )
-        {
-            var cmp = obj.AddComponent<FunctionComponent>();
-            cmp.SetFunction( action );
-        }
-
-        public static void Create( GameObject obj, Func<bool> action )
-        {
-            var cmp = obj.AddComponent<FunctionComponent>();
-            cmp.SetFunction( action );
-        }
-
-        public void SetFunction( Action action )
-        {
-            this.action = action;
-        }
-
-        public void SetFunction( Func<bool> action )
-        {
-            actionWithResult = action;
-        }
-
-        Action action;
-        Func<bool> actionWithResult;
-
-        void Update()
-        {
-            action?.Invoke();
-            if( actionWithResult?.Invoke() ?? false )
-                Destroy( this );
-        }
     }
 
     public static GameObject CreateSprite( string path, Vector3 pos, Vector2 scale, Quaternion? rotation = null, string layer = "Default", int order = 0 )
@@ -392,158 +352,13 @@ public static partial class Utility
 
 } // Utility namespace end
 
-public class WeightedSelector< T >
-{
-    public WeightedSelector( Func<int, int, int> randomGenerator )
-    {
-        randomGeneratorPred = randomGenerator;
-    }
 
-    public WeightedSelector()
-    {
-        randomGeneratorPred = ( int min, int max ) => { return UnityEngine.Random.Range( min, max ); };
-    }
-
-    public void AddItem( T item, int weight )
-    {
-        if( weight <= 0 )
-            return;
-        total += weight;
-
-        if( randomGeneratorPred( 0, total - 1 ) < weight )
-            current = item;
-    }
-
-    public T GetResult()
-    {
-        return current;
-    }
-
-    public bool HasResult()
-    {
-        return total != 0;
-    }
-
-    private T current;
-    private int total = 0;
-    private Func<int, int, int> randomGeneratorPred;
-}
-
-public class RateLimiter
-{
-    private int maxCalls;
-    private TimeSpan timeFrame;
-    private List<DateTime> calls = new List<DateTime>();
-
-    public RateLimiter( int maxCalls, TimeSpan timeFrame )
-    {
-        this.maxCalls = maxCalls;
-        this.timeFrame = timeFrame;
-    }
-
-    public bool CheckLimit()
-    {
-        var currentTime = DateTime.Now;
-        calls.RemoveAll( x => x < currentTime.Subtract( timeFrame ) );
-        return calls.Count < maxCalls;
-    }
-
-    public bool AttemptCall()
-    {
-        if( !CheckLimit() )
-            return false;
-
-        calls.Add( DateTime.Now );
-        return true;
-    }
-
-    public IEnumerator WaitForCall( IEnumerator action )
-    {
-        if( !CheckLimit() )
-        {
-            yield return new WaitForSeconds( calls.Back().Add( timeFrame ).Subtract( DateTime.Now ).Seconds );
-        }
-
-        calls.Add( DateTime.Now );
-        yield return action;
-    }
-}
-
+[Serializable]
 public class TransformData
 {
     public Vector3 translation;
     public Quaternion rotation;
     public Vector3 scale;
-}
-
-[Serializable]
-public class Pair<T, U>
-{
-    public Pair()
-    {
-    }
-
-    public Pair( T first, U second )
-    {
-        First = first;
-        Second = second;
-    }
-
-    public static bool operator ==( Pair<T, U> lhs, Pair<T, U> rhs )
-    {
-        if( ReferenceEquals( lhs, null ) )
-            return ReferenceEquals( rhs, null );
-        return lhs.Equals( rhs );
-    }
-
-    public static bool operator !=( Pair<T, U> lhs, Pair<T, U> rhs )
-    {
-        return !( lhs == rhs );
-    }
-
-    public override bool Equals( object obj )
-    {
-        if( ReferenceEquals( obj, null ) )
-            return false;
-
-        var rhs = obj as Pair<T, U>;
-        return !ReferenceEquals( rhs, null ) && Equals( rhs );
-    }
-
-    public bool Equals( Pair<T, U> obj )
-    {
-        if( ReferenceEquals( obj, null ) )
-            return false;
-
-        return First.Equals( obj.First ) && Second.Equals( obj.Second );
-    }
-
-    public override int GetHashCode()
-    {
-        return ( 23 * First.GetHashCode() ) ^ ( 397 * Second.GetHashCode() );
-    }
-
-    public void Deconstruct( out T first, out U second )
-    {
-        first = First;
-        second = Second;
-    }
-
-    public T First;
-    public U Second;
-}
-
-public class Interval : Pair<float, float>
-{
-    public Interval( float min, float max )
-        : base( min, max )
-    {
-
-    }
-
-    public float Range() { return Second - First; }
-    public bool Contains( float value ) { return value >= First && value <= Second; }
-    public float Random() { return UnityEngine.Random.Range( First, Second ); }
 }
 
 public enum EAxis
@@ -553,50 +368,3 @@ public enum EAxis
     Z,
     None,
 }
-
-public static partial class Utility
-{
-    public static IEnumerable<Pair<A, B>> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
-    {
-        using var iteratorA = a.GetEnumerator();
-        using var iteratorB = b.GetEnumerator();
-        while( iteratorA.MoveNext() && iteratorB.MoveNext() )
-        {
-            yield return new Pair<A, B>( iteratorA.Current, iteratorB.Current );
-        }
-    }
-
-    public static IEnumerable<Tuple<A, B, C>> Zip<A, B, C>( this IEnumerable<A> a, IEnumerable<B> b, IEnumerable<C> c )
-    {
-        using var iteratorA = a.GetEnumerator();
-        using var iteratorB = b.GetEnumerator();
-        using var iteratorC = c.GetEnumerator();
-        while( iteratorA.MoveNext() && iteratorB.MoveNext() && iteratorC.MoveNext() )
-        {
-            yield return new Tuple<A, B, C>( iteratorA.Current, iteratorB.Current, iteratorC.Current );
-        }
-    }
-}
-
-public class ReadOnlyAttribute : PropertyAttribute
-{
-
-}
-
-#if UNITY_EDITOR
-[CustomPropertyDrawer( typeof( ReadOnlyAttribute ) )]
-public class ReadOnlyDrawer : PropertyDrawer
-{
-    public override float GetPropertyHeight( SerializedProperty property, GUIContent label )
-    {
-        return EditorGUI.GetPropertyHeight( property, label, true );
-    }
-
-    public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
-    {
-        GUI.enabled = false;
-        EditorGUI.PropertyField( position, property, label, true );
-        GUI.enabled = true;
-    }
-}
-#endif
