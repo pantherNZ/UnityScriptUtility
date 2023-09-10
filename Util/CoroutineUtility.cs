@@ -140,7 +140,7 @@ public static partial class Utility
         {
             t = Mathf.Min( 1.0f, t + Time.deltaTime * ( 1.0f / durationSec ) );
             float interpValue = easingFunction != null ? easingFunction( t ) : t;
-            transform.localScale = Lerp( startScale, targetScale, interpValue );
+            transform.localScale = Utility.Lerp( startScale, targetScale, interpValue );
             yield return null;
         }
 

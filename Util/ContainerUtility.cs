@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static partial class Extensions
+public static partial class Utility
 {
     public static void Resize<T>( this List<T> list, int size, T value = default )
     {
@@ -308,10 +308,7 @@ public static partial class Extensions
             return defaultValue;
         return collection.ElementAtOrDefault( UnityEngine.Random.Range( 0, length ) );
     }
-}
 
-public static partial class Utility
-{
     public static IEnumerable<Pair<A, B>> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
     {
         using var iteratorA = a.GetEnumerator();

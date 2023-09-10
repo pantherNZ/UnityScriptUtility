@@ -1,6 +1,6 @@
 ﻿using Mono.Data.Sqlite;
 
-public static partial class Extensions
+public static partial class Utility
 {
     public static string GetStringSafe( this SqliteDataReader reader, int colIndex )
     {

@@ -6,6 +6,8 @@ using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
 using System.Security.Cryptography;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public static partial class Utility
 {
@@ -31,22 +33,6 @@ public static partial class Utility
         }
     }
 
-    // Helper function to get Modulus (not remainder which is what % gives)
-    public static int Mod( int a, int b )
-    {
-        return ( ( a %= b ) < 0 ) ? a + b : a;
-    }
-
-    public static float Mod( float a, float b )
-    {
-        return ( ( a %= b ) < 0.0f ) ? a + b : a;
-    }
-
-    public static Vector2 Vector2FromAngle( float angleDegrees )
-    {
-        return new Vector2( Mathf.Cos( angleDegrees * Mathf.Deg2Rad ), Mathf.Sin( angleDegrees * Mathf.Deg2Rad ) );
-    }
-
     public static IEnumerable<T> GetEnumValues<T>()
     {
         return Enum.GetValues( typeof( T ) ).Cast<T>();
@@ -57,72 +43,10 @@ public static partial class Utility
         return GetEnumValues<T>().Count();
     }
 
-    public static T ParseEnum<T>( string value, bool ignoreCase = false ) where T : struct
-    {
-        return ( T )Enum.Parse( typeof( T ), value, ignoreCase );
-    }
-
-    public static bool TryParseEnum<T>( string value, out T result, bool ignoreCase = false ) where T : struct
-    {
-        return Enum.TryParse( value, ignoreCase, out result );
-    }
-
-    // Parse a float, return default if failed
-    public static float ParseFloat( string text, float defaultValue )
-    {
-        if( float.TryParse( text, out float f ) )
-            return f;
-        return defaultValue;
-    }
-
-    // Parse a int, return default if failed
-    public static int ParseInt( string text, int defaultValue )
-    {
-        if( int.TryParse( text, out int i ) )
-            return i;
-        return defaultValue;
-    }
-
-    private const string SuperscriptDigits = "\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079";
-    private const string SubscriptDigits = "\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089";
-
-    public static string ToSuperscript( string text )
-    {
-        return new string( text.Select( x =>
-        {
-            if( x == '-' ) return '\u207B';
-            if( x == '.' ) return '\u2027';
-            var num = x - '0';
-            return ( num < 0 || num > 9 ) ? x : SuperscriptDigits[num];
-        }).ToArray() );
-    }
-
-    public static string ToSubscript( string text )
-    {
-        //text = text.Replace( ".", "  \u0323" );
-        return new string( text.Select( x =>
-        {
-            if( x == '-' ) return '\u208B';
-            var num = x - '0';
-            return ( num < 0 || num > 9 ) ? x : SubscriptDigits[num];
-        } ).ToArray() );
-    }
-
     public static void Swap<T>( ref T a, ref T b )
     {
         (b, a) = (a, b);
     }
-
-    public static float Distance( GameObject a, GameObject b ) { return Distance( a.transform, b.transform ); }
-    public static float Distance( GameObject a, Transform b ) { return Distance( a.transform, b ); }
-    public static float Distance( Transform a, GameObject b ) { return Distance( a, b.transform ); }
-    public static float Distance( Transform a, Transform b ) { return Mathf.Sqrt( DistanceSq( a, b ) ); }
-    public static float Distance( Vector3 a, Vector3 b ) { return Mathf.Sqrt( DistanceSq( a, b ) ); }
-    public static float DistanceSq( GameObject a, GameObject b ) { return DistanceSq( a.transform, b.transform ); }
-    public static float DistanceSq( GameObject a, Transform b ) { return DistanceSq( a.transform, b ); }
-    public static float DistanceSq( Transform a, GameObject b ) { return DistanceSq( a, b.transform ); }
-    public static float DistanceSq( Transform a, Transform b ) { return DistanceSq( a.position, b.position ); }
-    public static float DistanceSq( Vector3 a, Vector3 b ) { return ( a - b ).sqrMagnitude; }
 
 #if UNITY_EDITOR
     public static string GetResourcePath( UnityEngine.Object @object )
@@ -142,70 +66,6 @@ public static partial class Utility
             return null;
         }
         return Sprite.Create( texture, new Rect( 0.0f, 0.0f, texture.width, texture.height ), new Vector2( 0.5f, 0.5f ) );
-    }
-
-    public static Color GetRainbowColour( float value )
-    {
-        float inc = 6.0f;
-        float x = value * inc;
-        float r = 0.0f;
-        float g = 0.0f;
-        float b = 0.0f;
-
-        if( ( 0 <= x && x <= 1 ) || ( 5 <= x && x <= 6 ) ) r = 1.0f;
-        else if( 4 <= x && x <= 5 ) r = x - 4;
-        else if( 1 <= x && x <= 2 ) r = 1.0f - ( x - 1 );
-        if( 1 <= x && x <= 3 ) g = 1.0f;
-        else if( 0 <= x && x <= 1 ) g = x - 0;
-        else if( 3 <= x && x <= 4 ) g = 1.0f - ( x - 3 );
-        if( 3 <= x && x <= 5 ) b = 1.0f;
-        else if( 2 <= x && x <= 3 ) b = x - 2;
-        else if( 5 <= x && x <= 6 ) b = 1.0f - ( x - 5 );
-
-        return new Color( r, g, b, 1.0f );
-    }
-
-    public static Color InterpolateColour( Color a, Color b, float t, EasingFunction easingFunction = null )
-    {
-        Color.RGBToHSV( a, out float h1, out float s1, out float v1 );
-        Color.RGBToHSV( b, out float h2, out float s2, out float v2 );
-        t = easingFunction != null ? easingFunction( t ) : t;
-        float h = Lerp( h1, h2, t );
-        float s = Lerp( s1, s2, t );
-        float v = Lerp( v1, v2, t );
-        var colour = Color.HSVToRGB( h, s, v );
-        colour.a = Lerp( a.a, b.a, t );
-        return colour;
-    }
-
-    public static Color ColourFromHex( int r, int g, int b, int a = 255 )
-    {
-        return new Color(
-              r / 255.0f
-            , g / 255.0F
-            , b / 255.0f
-            , a / 255.0f );
-    }
-
-    public static Color ColourFromHex( uint rgba )
-    {
-        return new Color(
-              ( ( rgba & 0xff000000 ) >> 0x18 ) / 255.0f
-            , ( ( rgba & 0xff0000 ) >> 0x10 ) / 255.0F
-            , ( ( rgba & 0xff00 ) >> 0x08 ) / 255.0f
-            , ( rgba & 0xff ) / 255.0f );
-    }
-
-    public static Color ColourFromHexRGB( uint rgb )
-    {
-        if( ( rgb & 0xff000000 ) > 0 )
-            return ColourFromHex( rgb );
-
-        return new Color(
-              ( ( rgb & 0xff0000 ) >> 0x10 ) / 255.0F
-            , ( ( rgb & 0xff00 ) >> 0x08 ) / 255.0f
-            , ( rgb & 0xff ) / 255.0f
-            , 1.0f );
     }
 
     public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null )
@@ -350,8 +210,173 @@ public static partial class Utility
         return UnityEngine.Random.Range( 0, 100 ) < 50;
     }
 
-} // Utility namespace end
+    public static void Destroy( this GameObject gameObject, bool allowImmediate = false )
+    {
+        if( Application.isEditor && allowImmediate )
+            UnityEngine.Object.DestroyImmediate( gameObject );
+        else
+            UnityEngine.Object.Destroy( gameObject );
+    }
 
+    public static void ToggleActive( this GameObject gameObject )
+    {
+        gameObject.SetActive( !gameObject.activeSelf );
+    }
+
+    public static void DestroyAll( this List<GameObject> objects )
+    {
+        foreach( var x in objects )
+            if( x != null )
+                x.Destroy();
+        objects.Clear();
+    }
+
+    public static void DestroyObject( this MonoBehaviour component )
+    {
+        UnityEngine.Object.Destroy( component.gameObject );
+    }
+
+    public static void DestroyComponent( this MonoBehaviour component )
+    {
+        UnityEngine.Object.Destroy( component );
+    }
+
+    public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
+    {
+        key = tuple.Key;
+        value = tuple.Value;
+    }
+
+    public static bool IsVisible( this CanvasGroup group )
+    {
+        return group.alpha != 0.0f;
+    }
+
+    public static void ToggleVisibility( this CanvasGroup group )
+    {
+        group.SetVisibility( !group.IsVisible() );
+    }
+
+    public static void SetVisibility( this CanvasGroup group, bool visible )
+    {
+        group.alpha = visible ? 1.0f : 0.0f;
+        group.blocksRaycasts = visible;
+        group.interactable = visible;
+    }
+
+    // Deep clone
+    public static T DeepCopy<T>( this T a )
+    {
+        using( MemoryStream stream = new MemoryStream() )
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize( stream, a );
+            stream.Position = 0;
+            return ( T )formatter.Deserialize( stream );
+        }
+    }
+
+#if UNITY_EDITOR
+    public static string GetDataPathAbsolute( this TextAsset textAsset )
+    {
+        return Application.dataPath.Substring( 0, Application.dataPath.Length - 6 ) + UnityEditor.AssetDatabase.GetAssetPath( textAsset );
+    }
+
+    public static string GetDataPathRelative( this TextAsset textAsset )
+    {
+        return UnityEditor.AssetDatabase.GetAssetPath( textAsset );
+    }
+#endif
+
+    static public Rect GetWorldRect( this RectTransform rt )
+    {
+        Vector3[] corners = new Vector3[4];
+        rt.GetWorldCorners( corners );
+        Vector2 scaledSize = new Vector2( rt.lossyScale.x * rt.rect.size.x, rt.lossyScale.y * rt.rect.size.y );
+        return new Rect( corners[0], scaledSize );
+    }
+
+    static public Rect ConvertToWorldRect( this RectTransform rt, Rect localRect )
+    {
+        var min = rt.localToWorldMatrix.MultiplyPoint( localRect.min );
+        var max = rt.localToWorldMatrix.MultiplyPoint( localRect.max );
+        return new Rect( ( max + min ) / 2.0f, max - min );
+    }
+
+    public static Rect GetSceenSpaceRect( this RectTransform rt )
+    {
+        Vector2 size = Vector2.Scale( rt.rect.size, rt.lossyScale );
+        return new Rect( ( Vector2 )rt.position - ( size * 0.5f ), size );
+    }
+
+    public static int GetChildIndex( this Transform transform )
+    {
+        return transform.parent.GetIndexOfChild( transform );
+    }
+
+    public static int GetIndexOfChild( this Transform transform, Transform child )
+    {
+        int idx = 0;
+        foreach( Transform c in transform )
+        {
+            if( c == child )
+                return idx;
+            idx++;
+        }
+        return -1;
+    }
+
+    public static void Match( this Transform transform, Transform other )
+    {
+        transform.position = other.position;
+        transform.localScale = other.localScale;
+        transform.rotation = other.rotation;
+    }
+
+    public static long NextLong( this System.Random random, long min, long max )
+    {
+        if( max <= min )
+            throw new ArgumentOutOfRangeException( "max", "max must be > min!" );
+
+        ulong uRange = ( ulong )( max - min );
+
+        //Prevent a modolo bias; see https://stackoverflow.com/a/10984975/238419
+        ulong ulongRand;
+        do
+        {
+            byte[] buf = new byte[8];
+            random.NextBytes( buf );
+            ulongRand = ( ulong )BitConverter.ToInt64( buf, 0 );
+        }
+        while( ulongRand > ulong.MaxValue - ( ( ulong.MaxValue % uRange ) + 1 ) % uRange );
+
+        return ( long )( ulongRand % uRange ) + min;
+    }
+
+    public static long NextLong( this System.Random random, long max )
+    {
+        return random.NextLong( 0, max );
+    }
+
+    public static long NextLong( this System.Random random )
+    {
+        return random.NextLong( long.MinValue, long.MaxValue );
+    }
+
+    public static ulong ToU64( this BitArray ba )
+    {
+        Debug.Assert( ba.Length <= 64 );
+        var len = Math.Min( 64, ba.Count );
+        ulong n = 0;
+        for( int i = 0; i < len; i++ )
+        {
+            if( ba.Get( i ) )
+                n |= 1UL << i;
+        }
+        return n;
+    }
+
+} // Utility namespace end
 
 [Serializable]
 public class TransformData

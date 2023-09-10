@@ -129,7 +129,7 @@ public interface ISavableComponent
     void Deserialise( int saveVersion, System.IO.BinaryReader reader );
 }
 
-public static partial class Extensions
+public static partial class Utility
 {
     public static T Get<T>( this Dictionary<string, object> instance, string name )
     {
@@ -354,7 +354,7 @@ public static partial class Extensions
         }
         if( type.IsEnum )
         {
-            return lookupTable[Enum.GetUnderlyingType( type )].Invoke( reader );
+            return SaveDetail.lookupTable[Enum.GetUnderlyingType( type )].Invoke( reader );
         }
         else if( type == typeof( Material ) )
         {
@@ -371,34 +371,37 @@ public static partial class Extensions
             var path = reader.ReadString();
             return Resources.Load<PhysicMaterial>( path );
         }
-        else if( !lookupTable.ContainsKey( type ) )
+        else if( !SaveDetail.lookupTable.ContainsKey( type ) )
             Debug.LogError( "ReadObject Error: Failed to read object of type: " + type.ToString() );
-        return lookupTable[type].Invoke( reader );
+        return SaveDetail.lookupTable[type].Invoke( reader );
     }
 
-    static readonly Dictionary<Type, Func< BinaryReader, object > > lookupTable = new Dictionary<Type, Func< BinaryReader, object >>
+    public static class SaveDetail
     {
-        { typeof( bool ), ( reader ) => { return reader.ReadBoolean(); } },
-        { typeof( byte ), ( reader ) => { return reader.ReadByte(); } },
-        { typeof( byte[] ), ( reader ) => { return reader.ReadBytes(); } },
-        { typeof( char ), ( reader ) => { return reader.ReadChar(); } },
-        { typeof( char[] ), ( reader ) => { return reader.ReadChars(); } },
-        { typeof( decimal ), ( reader ) => { return reader.ReadDecimal(); } },
-        { typeof( float ), ( reader ) => { return reader.ReadSingle(); } },
-        { typeof( double ), ( reader ) => { return reader.ReadDouble(); } },
-        { typeof( string ), ( reader ) => { return reader.ReadString(); } },
-        { typeof( Int16 ), ( reader ) => { return reader.ReadInt16(); } },
-        { typeof( UInt16 ), ( reader ) => { return reader.ReadUInt16(); } },
-        { typeof( Int32 ), ( reader ) => { return reader.ReadInt32(); } },
-        { typeof( UInt32 ), ( reader ) => { return reader.ReadUInt32(); } },
-        { typeof( Int64 ), ( reader ) => { return reader.ReadInt64(); } },
-        { typeof( UInt64 ), ( reader ) => { return reader.ReadUInt64(); } },
-        { typeof( Vector2 ), ( reader ) => { return reader.ReadVector2(); } },
-        { typeof( Vector2Int ), ( reader ) => { return reader.ReadVector2Int(); } },
-        { typeof( Vector3 ), ( reader ) => { return reader.ReadVector3(); } },
-        { typeof( Vector3Int ), ( reader ) => { return reader.ReadVector3Int(); } },
-        { typeof( Vector4 ), ( reader ) => { return reader.ReadVector4(); } },
-        { typeof( Quaternion ), ( reader ) => { return reader.ReadQuaternion(); } },
-        { typeof( Color ), ( reader ) => { return reader.ReadColour(); } },
-    };
+        public static readonly Dictionary<Type, Func<BinaryReader, object>> lookupTable = new Dictionary<Type, Func<BinaryReader, object>>
+        {
+            { typeof( bool ), ( reader ) => { return reader.ReadBoolean(); } },
+            { typeof( byte ), ( reader ) => { return reader.ReadByte(); } },
+            { typeof( byte[] ), ( reader ) => { return reader.ReadBytes(); } },
+            { typeof( char ), ( reader ) => { return reader.ReadChar(); } },
+            { typeof( char[] ), ( reader ) => { return reader.ReadChars(); } },
+            { typeof( decimal ), ( reader ) => { return reader.ReadDecimal(); } },
+            { typeof( float ), ( reader ) => { return reader.ReadSingle(); } },
+            { typeof( double ), ( reader ) => { return reader.ReadDouble(); } },
+            { typeof( string ), ( reader ) => { return reader.ReadString(); } },
+            { typeof( Int16 ), ( reader ) => { return reader.ReadInt16(); } },
+            { typeof( UInt16 ), ( reader ) => { return reader.ReadUInt16(); } },
+            { typeof( Int32 ), ( reader ) => { return reader.ReadInt32(); } },
+            { typeof( UInt32 ), ( reader ) => { return reader.ReadUInt32(); } },
+            { typeof( Int64 ), ( reader ) => { return reader.ReadInt64(); } },
+            { typeof( UInt64 ), ( reader ) => { return reader.ReadUInt64(); } },
+            { typeof( Vector2 ), ( reader ) => { return reader.ReadVector2(); } },
+            { typeof( Vector2Int ), ( reader ) => { return reader.ReadVector2Int(); } },
+            { typeof( Vector3 ), ( reader ) => { return reader.ReadVector3(); } },
+            { typeof( Vector3Int ), ( reader ) => { return reader.ReadVector3Int(); } },
+            { typeof( Vector4 ), ( reader ) => { return reader.ReadVector4(); } },
+            { typeof( Quaternion ), ( reader ) => { return reader.ReadQuaternion(); } },
+            { typeof( Color ), ( reader ) => { return reader.ReadColour(); } },
+        };
+    }
 }

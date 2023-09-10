@@ -3,32 +3,35 @@ using UnityEngine;
 
 public static partial class Utility
 {
-    static List<List<int>> lookupTable = new List<List<int>>
+    public static class BinomialDetail
     {
-        new List<int>{ 1 },
-        new List<int>{ 1, 1 },
-        new List<int>{ 1, 2, 1 },
-        new List<int>{ 1, 3, 3, 1 },
-        new List<int>{ 1, 4, 6, 4, 1 },
-        new List<int>{ 1, 5, 10, 10, 5, 1 },
-        new List<int>{ 1, 6, 15, 20, 15, 6, 1 }
-    };
+        public static List<List<int>> lookupTable = new List<List<int>>
+        {
+            new List<int>{ 1 },
+            new List<int>{ 1, 1 },
+            new List<int>{ 1, 2, 1 },
+            new List<int>{ 1, 3, 3, 1 },
+            new List<int>{ 1, 4, 6, 4, 1 },
+            new List<int>{ 1, 5, 10, 10, 5, 1 },
+            new List<int>{ 1, 6, 15, 20, 15, 6, 1 }
+        };
+    }
 
     public static int Binomial( int n, int k )
     {
-        while( n >= lookupTable.Count )
+        while( n >= BinomialDetail.lookupTable.Count )
         {
             var newRow = new List<int> { 1 };
-            var length = lookupTable.Count - 1;
+            var length = BinomialDetail.lookupTable.Count - 1;
 
             for( int i = 1; i < length; i++ )
-                newRow.Add( lookupTable[length][i - 1] + lookupTable[length][i] );
+                newRow.Add( BinomialDetail.lookupTable[length][i - 1] + BinomialDetail.lookupTable[length][i] );
 
             newRow.Add( 1 );
-            lookupTable.Add( newRow );
+            BinomialDetail.lookupTable.Add( newRow );
         }
 
-        return lookupTable[n][k];
+        return BinomialDetail.lookupTable[n][k];
     }
 
     public static Vector3 Bezier( float interval, List<Vector3> controlPoints )
