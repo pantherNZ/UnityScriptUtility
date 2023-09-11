@@ -10,20 +10,26 @@ public enum TextInputFilters
     Uppercase = 1 << 0,
     Lowercase = 1 << 1,
     NoWhitespace = 1 << 2,
-    Integer = 1 << 3,
-    Decimal = 1 << 4,
-    Digit = 1 << 5,
-    Alphanumeric = 1 << 6,
-    Name = 1 << 7,
-    EmailAddress = 1 << 8,
-    Regex = 1 << 9,
-    UnityLobbyCode = 1 << 10,
+}
+
+public enum CharacterValidation
+{
+    None,
+    Integer,
+    Decimal,
+    Digit,
+    Alphanumeric,
+    Name,
+    EmailAddress,
+    Regex,
+    UnityLobbyCode,
 }
 
 [RequireComponent(typeof(TMPro.TMP_InputField))]
 public class TextInputFilter : MonoBehaviour
 {
     [SerializeField] TextInputFilters filters;
+    [SerializeField] CharacterValidation validation = CharacterValidation.None;
     [SerializeField] string regexValue;
 
     const string kEmailSpecialCharacters = "!#$%&'*+-/=?^_`{|}~";
@@ -34,7 +40,7 @@ public class TextInputFilter : MonoBehaviour
         inputField = GetComponent<TMPro.TMP_InputField>();
         inputField.onValidateInput += Validate;
 
-        if( filters.HasFlag( TextInputFilters.UnityLobbyCode ) )
+        if( validation == CharacterValidation.UnityLobbyCode )
             inputField.characterLimit = 6;
     }
 
@@ -44,7 +50,7 @@ public class TextInputFilter : MonoBehaviour
         if( filters == 0 || !enabled )
             return ch;
 
-        var lobbyCode = filters.HasFlag( TextInputFilters.UnityLobbyCode );
+        var lobbyCode = validation == CharacterValidation.UnityLobbyCode;
 
         if( lobbyCode || filters.HasFlag( TextInputFilters.NoWhitespace ) )
             if( ch == ' ' )
@@ -59,7 +65,11 @@ public class TextInputFilter : MonoBehaviour
             if( "ZVUSQOLIB12589".Contains( ch ) )
                 return ( char )0;
 
-        if( filters.HasFlag( TextInputFilters.Integer ) || filters.HasFlag( TextInputFilters.Decimal ) )
+        if( validation == CharacterValidation.None )
+        {
+            return ch;
+        }
+        else if( validation == CharacterValidation.Integer || validation == CharacterValidation.Decimal )
         {
             // Integer and decimal
             bool cursorBeforeDash = ( pos == 0 && text.Length > 0 && text[0] == '-' );
@@ -71,23 +81,23 @@ public class TextInputFilter : MonoBehaviour
                     return ch;
 
                 var separator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-                if( ch == Convert.ToChar( separator ) && filters.HasFlag( TextInputFilters.Decimal ) && !text.Contains( separator ) ) 
+                if( ch == Convert.ToChar( separator ) && validation == CharacterValidation.Decimal && !text.Contains( separator ) ) 
                     return ch;
             }
         }
-        else if( filters.HasFlag( TextInputFilters.Digit ) )
+        else if( validation == CharacterValidation.Digit )
         {
             if( ch >= '0' && ch <= '9' ) 
                 return ch;
         }
-        else if( lobbyCode || filters.HasFlag( TextInputFilters.Alphanumeric ) )
+        else if( lobbyCode || validation == CharacterValidation.Alphanumeric )
         {
             // All alphanumeric characters
             if( ch >= 'A' && ch <= 'Z' ) return ch;
             if( ch >= 'a' && ch <= 'z' ) return ch;
             if( ch >= '0' && ch <= '9' ) return ch;
         }
-        else if( filters.HasFlag( TextInputFilters.Name ) )
+        else if( validation == CharacterValidation.Name )
         {
             char prevChar = ( text.Length > 0 ) ? text[Mathf.Clamp( pos - 1, 0, text.Length - 1 )] : ' ';
             char lastChar = ( text.Length > 0 ) ? text[Mathf.Clamp( pos, 0, text.Length - 1 )] : ' ';
@@ -137,7 +147,7 @@ public class TextInputFilter : MonoBehaviour
                     return ch;
             }
         }
-        else if( filters.HasFlag( TextInputFilters.EmailAddress ) )
+        else if( validation == CharacterValidation.EmailAddress )
         {
             // From StackOverflow about allowed characters in email addresses:
             // Uppercase and lowercase English letters (a-z, A-Z)
@@ -159,7 +169,7 @@ public class TextInputFilter : MonoBehaviour
                     return ch;
             }
         }
-        else if( filters.HasFlag( TextInputFilters.Regex ) )
+        else if( validation == CharacterValidation.Regex )
         {
             // Regex expression
             if( Regex.IsMatch( ch.ToString(), regexValue ) )
