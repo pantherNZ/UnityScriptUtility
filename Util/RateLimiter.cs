@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class RateLimiter
@@ -31,14 +32,29 @@ public class RateLimiter
         return true;
     }
 
+    private TimeSpan GetWaitTimeSpan()
+    {
+        return calls.Front().Add( timeFrame ).Subtract( DateTime.Now );
+    }
+
     public IEnumerator WaitForCall( IEnumerator action )
     {
         if( !CheckLimit() )
         {
-            yield return new WaitForSeconds( calls.Back().Add( timeFrame ).Subtract( DateTime.Now ).Seconds );
+            yield return new WaitForSeconds( GetWaitTimeSpan().Seconds );
         }
 
         calls.Add( DateTime.Now );
         yield return action;
+    }
+
+    public async Task WaitForCallAsync()
+    {
+        if( !CheckLimit() )
+        {
+            await Task.Delay( GetWaitTimeSpan() );
+        }
+
+        calls.Add( DateTime.Now );
     }
 }
