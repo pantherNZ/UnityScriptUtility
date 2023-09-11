@@ -37,6 +37,8 @@ public static partial class Utility
 
         public FunctionTimer GetTimer( string name )
         {
+            if( name == string.Empty )
+                return null;
             return timerList.Find( ( timer ) => { return timer.name == name; } );
         }
 
@@ -96,6 +98,21 @@ public static partial class Utility
     {
         public static FunctionTimer CreateTimer( float duration, Action action, string name = "", bool loop = false, bool useUnscaledDeltaTime = false )
         {
+            return FunctionTimerHandler.Instance.AddTimer( new FunctionTimer( duration, action, name, loop, useUnscaledDeltaTime ) );
+        }
+
+        public static FunctionTimer CreateOrUpdateTimer( float duration, Action action, string name, bool loop = false, bool useUnscaledDeltaTime = false )
+        {
+            var existing = GetTimer( name );
+            if( existing != null )
+            {
+                existing.duration = duration;
+                existing.timeLeft = duration;
+                existing.action = action;
+                existing.useUnscaledDeltaTime = useUnscaledDeltaTime;
+                existing.loop = loop;
+                return existing;
+            }
             return FunctionTimerHandler.Instance.AddTimer( new FunctionTimer( duration, action, name, loop, useUnscaledDeltaTime ) );
         }
 
