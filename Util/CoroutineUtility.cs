@@ -196,6 +196,22 @@ public static partial class Utility
         SetPosition( transform, localPosition, targetPosition );
     }
 
+    private static Quaternion GetRotation( Transform t, bool local )
+    {
+        return local ? t.localRotation : t.rotation;
+    }
+
+    private static void SetRotation( Transform t, bool local, Quaternion rotation )
+    {
+        if( t != null )
+        {
+            if( local )
+                t.localRotation = rotation;
+            else
+                t.rotation = rotation;
+        }
+    }
+
     public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec, bool localRotation = true, EasingFunction easingFunction = null/*= EasingFunction.Linear*/)
     {
         mono.InterpolateRotation( mono.transform, rotation, durationSec, localRotation, easingFunction );
@@ -214,13 +230,15 @@ public static partial class Utility
             yield return null;
         }
 
-        float timer = 0.0f;
-        while( transform != null && timer < durationSec )
+        var startRot = GetRotation( transform, localRotation );
+        var goalRot = Quaternion.Euler( startRot.eulerAngles + rotation );
+        float t = 0.0f;
+
+        while( transform != null && t < 1.0f)
         {
-            var timeDiff = Mathf.Min( durationSec - timer, Time.deltaTime ); ;
-            timer += timeDiff;
-            var interp = timeDiff / durationSec;
-            transform.Rotate( rotation * interp, localRotation ? Space.Self : Space.World );
+            t = Mathf.Min( 1.0f, t + Time.deltaTime * ( 1.0f / durationSec ) );
+            float interpValue = easingFunction != null ? easingFunction( t ) : t;
+            SetRotation( transform, localRotation, Quaternion.Slerp( startRot, goalRot, interpValue ) );
             yield return null;
         }
     }
