@@ -293,14 +293,6 @@ public static partial class Utility
         }
     }
 
-    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
-    {
-        foreach( Transform item in collection )
-        {
-            yield return new Pair<int, Transform>( startIndex++, item );
-        }
-    }
-
     public static T RandomItem<T>( this IEnumerable<T> collection, T defaultValue = default )
     {
         var length = collection.Count();

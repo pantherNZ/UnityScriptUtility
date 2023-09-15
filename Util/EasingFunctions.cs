@@ -255,7 +255,7 @@ public static partial class Utility
         return ( ( t * ( slowDown - 1.0f ) ) + 1.0f ) / slowDown;
     }
 
-    public static float CatmullRom( float t, float p0, float p3 )
+    public static float CatmullRom( float t, float p0 = 0.1f, float p3 = 2.0f )
     {
         float p1 = 0.0f;
         float p2 = 1.0f;
@@ -278,5 +278,135 @@ public static partial class Utility
         if( t <= .5f )
             return EaseIn( t / 0.5f, expIn );
         return EaseIn( Inverse( t ) / 0.5f, expOut );
+    }
+
+	public enum EasingFunctionTypes
+    {
+		Linear,
+		Quadratic,
+		Cubic,
+		Quartic,
+		Quintic,
+		Elastic,
+		Circular,
+		Bounce,
+		Back,
+		Exponential,
+		Sinusoidal,
+		Spike,
+		Parametric,
+		CatmullRom,
+		SmoothStep,
+		SmootherStep,
+		Inverse,
+		WeightedAverage,
+	}
+
+	public enum EasingFunctionMethod
+	{
+		In,
+		Out,
+		InOut,
+	}
+
+	public static EasingFunction FetchEasingFunction( EasingFunctionTypes type, EasingFunctionMethod method, float? param1 = null, float? param2 = null )
+	{
+		return type switch
+		{
+			EasingFunctionTypes.Linear => Easing.Linear,
+			EasingFunctionTypes.Quadratic =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Quadratic.InOut,
+					EasingFunctionMethod.Out => Easing.Quadratic.InOut,
+					EasingFunctionMethod.InOut => Easing.Quadratic.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Cubic =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Cubic.InOut,
+					EasingFunctionMethod.Out => Easing.Cubic.InOut,
+					EasingFunctionMethod.InOut => Easing.Cubic.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Quartic =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Quartic.InOut,
+					EasingFunctionMethod.Out => Easing.Quartic.InOut,
+					EasingFunctionMethod.InOut => Easing.Quartic.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Quintic =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Quintic.InOut,
+					EasingFunctionMethod.Out => Easing.Quintic.InOut,
+					EasingFunctionMethod.InOut => Easing.Quintic.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Elastic =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Elastic.InOut,
+					EasingFunctionMethod.Out => Easing.Elastic.InOut,
+					EasingFunctionMethod.InOut => Easing.Elastic.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Circular =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Circular.InOut,
+					EasingFunctionMethod.Out => Easing.Circular.InOut,
+					EasingFunctionMethod.InOut => Easing.Circular.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Bounce =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Bounce.InOut,
+					EasingFunctionMethod.Out => Easing.Bounce.InOut,
+					EasingFunctionMethod.InOut => Easing.Bounce.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Back =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Back.InOut,
+					EasingFunctionMethod.Out => Easing.Back.InOut,
+					EasingFunctionMethod.InOut => Easing.Back.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Exponential =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Exponential.InOut,
+					EasingFunctionMethod.Out => Easing.Exponential.InOut,
+					EasingFunctionMethod.InOut => Easing.Exponential.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Sinusoidal =>
+				method switch
+				{
+					EasingFunctionMethod.In => Easing.Sinusoidal.InOut,
+					EasingFunctionMethod.Out => Easing.Sinusoidal.InOut,
+					EasingFunctionMethod.InOut => Easing.Sinusoidal.InOut,
+					_ => null,
+				},
+			EasingFunctionTypes.Spike => param1 != null ? x => Spike( x, param1.Value, param2 ?? param1.Value ) : x => Spike( x ),
+			EasingFunctionTypes.Parametric => param1 != null ? x => EaseInOutParametric( x, param1.Value ) : x => EaseInOutParametric( x ),
+			EasingFunctionTypes.CatmullRom => param1 != null ? x => CatmullRom( x, param1.Value, param2 ?? param1.Value ) : x => CatmullRom( x ),
+			EasingFunctionTypes.SmoothStep => SmoothStep,
+			EasingFunctionTypes.SmootherStep => SmootherStep,
+			EasingFunctionTypes.Inverse => Inverse,
+			EasingFunctionTypes.WeightedAverage => param1 != null ? x => WeightedAverage( x, param1.Value ) : x => WeightedAverage( x ),
+			_ => null,
+		};
+	}
+
+    public static float EvaluateEasingFunction( float t, EasingFunctionTypes type, EasingFunctionMethod method, float? param1 = null, float? param2 = null )
+    {
+        return FetchEasingFunction( type, method, param1, param2 )( t );
     }
 }

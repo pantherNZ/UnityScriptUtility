@@ -210,9 +210,9 @@ public static partial class Utility
         return UnityEngine.Random.Range( 0, 100 ) < 50;
     }
 
-    public static void Destroy( this GameObject gameObject, bool allowImmediate = false )
+    public static void Destroy( this GameObject gameObject )
     {
-        if( Application.isEditor && allowImmediate )
+        if( Application.isEditor && !Application.isPlaying )
             UnityEngine.Object.DestroyImmediate( gameObject );
         else
             UnityEngine.Object.Destroy( gameObject );
@@ -239,6 +239,14 @@ public static partial class Utility
     public static void DestroyComponent( this MonoBehaviour component )
     {
         UnityEngine.Object.Destroy( component );
+    }
+
+    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
+    {
+        foreach( Transform item in collection )
+        {
+            yield return new Pair<int, Transform>( startIndex++, item );
+        }
     }
 
     public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
