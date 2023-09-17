@@ -210,7 +210,7 @@ public static partial class Utility
         return UnityEngine.Random.Range( 0, 100 ) < 50;
     }
 
-    public static void Destroy( this GameObject gameObject )
+    public static void Destroy( this UnityEngine.Object gameObject )
     {
         if( Application.isEditor && !Application.isPlaying )
             UnityEngine.Object.DestroyImmediate( gameObject );
@@ -233,12 +233,12 @@ public static partial class Utility
 
     public static void DestroyObject( this MonoBehaviour component )
     {
-        UnityEngine.Object.Destroy( component.gameObject );
+        Destroy( component.gameObject );
     }
 
     public static void DestroyComponent( this MonoBehaviour component )
     {
-        UnityEngine.Object.Destroy( component );
+        Destroy( component );
     }
 
     public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
