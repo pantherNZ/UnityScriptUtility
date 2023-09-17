@@ -6,6 +6,16 @@ using UnityEngine.UI;
 
 public static partial class Utility
 {
+    public static bool TryStopCoroutine( this MonoBehaviour mono, Coroutine routine )
+    {
+        if( routine != null )
+        {
+            mono.StopCoroutine( routine );
+            return true;
+        }
+        return false;
+    }
+
     public static IEnumerator FadeToTransparent( CanvasGroup group, float fadeDurationSec, EasingFunction easingFunction = null, bool disableObjectOnFinish = false )
     {
         if( fadeDurationSec <= 0.0f )
