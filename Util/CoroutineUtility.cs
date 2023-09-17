@@ -10,7 +10,13 @@ public static partial class Utility
     {
         if( fadeDurationSec <= 0.0f )
         {
-            Debug.LogError( "FadeToBlack called with a negative or 0 duration" );
+            Debug.LogError( "FadeToTransparent called with a negative or 0 duration" );
+            yield return null;
+        }
+
+        if( group == null )
+        {
+            Debug.LogError( "FadeToTransparent called with a null CanvasGroup" );
             yield return null;
         }
 
@@ -43,11 +49,22 @@ public static partial class Utility
         mono.StartCoroutine( FadeToTransparent( group, fadeDurationSec, easingFunction, disableObjectOnFinish ) );
     }
 
+    public static void FadeToTransparent( this MonoBehaviour mono, GameObject group, float fadeDurationSec, EasingFunction easingFunction = null, bool disableObjectOnFinish = false )
+    {
+        mono.StartCoroutine( FadeToTransparent( group.GetComponent<CanvasGroup>(), fadeDurationSec, easingFunction, disableObjectOnFinish ) );
+    }
+
     public static IEnumerator FadeFromTransparent( CanvasGroup group, float fadeDurationSec, EasingFunction easingFunction = null )
     {
         if( fadeDurationSec <= 0.0f )
         {
-            Debug.LogError( "FadeFromBlack called with a negative or 0 duration" );
+            Debug.LogError( "FadeFromTransparent called with a negative or 0 duration" );
+            yield return null;
+        }
+
+        if( group == null )
+        {
+            Debug.LogError( "FadeFromTransparent called with a null CanvasGroup" );
             yield return null;
         }
 
@@ -75,6 +92,11 @@ public static partial class Utility
         mono.StartCoroutine( FadeFromTransparent( group, fadeDurationSec, easingFunction ) );
     }
 
+    public static void FadeFromTransparent( this MonoBehaviour mono, GameObject group, float fadeDurationSec, EasingFunction easingFunction = null )
+    {
+        mono.StartCoroutine( FadeFromTransparent( group.GetComponent<CanvasGroup>(), fadeDurationSec, easingFunction ) );
+    }
+
     public static void FadeToColour( this MonoBehaviour mono, Color colour, float fadeDurationSec, EasingFunction easingFunction = null, bool disableObjectOnFinish = false )
     {
         mono.FadeToColour( mono.GetComponent<Graphic>(), colour, fadeDurationSec, easingFunction, disableObjectOnFinish );
@@ -93,9 +115,11 @@ public static partial class Utility
             yield return null;
         }
 
-        Debug.Assert( image != null );
         if( image == null )
-            yield break;
+        {
+            Debug.LogError( "FadeToColour called with a null image Graphic" );
+            yield return null;
+        }
 
         image.gameObject.SetActive( true );
 

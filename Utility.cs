@@ -249,6 +249,16 @@ public static partial class Utility
         }
     }
 
+    public static void DestroyChildren( this Transform transform )
+    {
+        while( transform.childCount > 0 )
+        {
+            var child = transform.GetChild( 0 );
+            child.parent = null;
+            child.gameObject.Destroy();
+        }
+    }
+
     public static void Deconstruct<T1, T2>( this KeyValuePair<T1, T2> tuple, out T1 key, out T2 value )
     {
         key = tuple.Key;
