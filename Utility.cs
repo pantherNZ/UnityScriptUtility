@@ -210,6 +210,15 @@ public static partial class Utility
         return UnityEngine.Random.Range( 0, 100 ) < 50;
     }
 
+    public static float RandomGaussian( float mean, float stdDev )
+    {
+        float u1 = 1.0f - UnityEngine.Random.value;
+        float u2 = 1.0f - UnityEngine.Random.value;
+        float randStdNormal = Mathf.Sqrt( -2.0f * Mathf.Log( u1 ) ) * Mathf.Sin( 2.0f * Mathf.PI * u2 ); //random normal(0,1)
+        float randNormal = mean + stdDev * randStdNormal; //random normal(mean,stdDev^2)
+        return randNormal;
+    }
+
     public static void Destroy( this UnityEngine.Object gameObject )
     {
         if( Application.isEditor && !Application.isPlaying )
