@@ -126,4 +126,9 @@ public static partial class Utility
     {
         return string.Format( str, args );
     }
+
+    public static void CopyToClipboard( this string str )
+    {
+        GUIUtility.systemCopyBuffer = str;
+    }
 }
