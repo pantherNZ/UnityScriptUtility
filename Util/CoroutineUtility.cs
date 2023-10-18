@@ -309,6 +309,31 @@ public static partial class Utility
     }
 #endif // PATH_CREATOR_PACKAGE
 
+    [Serializable]
+    public struct ShakeParams
+    {
+        public float durationSec;
+        public float amplitudeStart;
+        public float amplitudeEnd;
+        public float frequency;
+        public float yMultiplier;
+    }
+
+    public static void Shake( this MonoBehaviour mono, ShakeParams shakeParams )
+    {
+        mono.Shake( mono.transform, shakeParams );
+    }
+
+    public static void Shake( this MonoBehaviour mono, Transform target, ShakeParams shakeParams )
+    {
+        mono.StartCoroutine( Shake( target, shakeParams ) );
+    }
+
+    public static IEnumerator Shake( Transform transform, ShakeParams shakeParams )
+    {
+        return Shake( transform, shakeParams.durationSec, shakeParams.amplitudeStart, shakeParams.amplitudeEnd, shakeParams.frequency, shakeParams.yMultiplier );
+    }
+
     public static void Shake( this MonoBehaviour mono, float durationSec, float amplitudeStart, float amplitudeEnd, float frequency, float yMultiplier )
     {
         mono.Shake( mono.transform, durationSec, amplitudeStart, amplitudeEnd, frequency, yMultiplier );
@@ -330,14 +355,17 @@ public static partial class Utility
         var elapsed = 0.0f;
         var originalPos = transform.localPosition;
 
+        var randX = RandomBool() ? 1.0f : -1.0f;
+        var randY = RandomBool() ? 1.0f : -1.0f;
+
         while( elapsed < durationSec && transform != null )
         {
             elapsed += Time.deltaTime;
 
             var dynamicAmplitude = Mathf.Lerp( amplitudeStart, amplitudeEnd, elapsed / durationSec );
             transform.localPosition = originalPos + new Vector3(
-                Mathf.Sin( elapsed * frequency ) * dynamicAmplitude,
-                Mathf.Sin( elapsed * frequency * yMultiplier ) * dynamicAmplitude / yMultiplier,
+                Mathf.Sin( elapsed * frequency ) * dynamicAmplitude * randX,
+                Mathf.Sin( elapsed * frequency * yMultiplier ) * dynamicAmplitude / yMultiplier * randY,
                 0.0f );
 
             yield return null;
