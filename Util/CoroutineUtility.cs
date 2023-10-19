@@ -344,7 +344,7 @@ public static partial class Utility
         mono.StartCoroutine( Shake( target, durationSec, amplitudeStart, amplitudeEnd, frequency, yMultiplier ) );
     }
 
-    public static IEnumerator Shake( Transform transform, float durationSec, float amplitudeStart, float amplitudeEnd, float frequency, float yMultiplier )
+    public static IEnumerator Shake( Transform transform, float durationSec, float amplitudeStart, float amplitudeEnd, float frequency, float yMultiplier, IRandom rng = null )
     {
         if( durationSec <= 0.0f )
         {
@@ -355,8 +355,8 @@ public static partial class Utility
         var elapsed = 0.0f;
         var originalPos = transform.localPosition;
 
-        var randX = RandomBool() ? 1.0f : -1.0f;
-        var randY = RandomBool() ? 1.0f : -1.0f;
+        var randX = ( rng ?? DefaultRng ).Bool() ? 1.0f : -1.0f;
+        var randY = ( rng ?? DefaultRng ).Bool() ? 1.0f : -1.0f;
 
         while( elapsed < durationSec && transform != null )
         {

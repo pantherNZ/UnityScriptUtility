@@ -7,9 +7,9 @@ public class WeightedSelector<T>
         randomGeneratorPred = randomGenerator;
     }
 
-    public WeightedSelector()
+    public WeightedSelector( Utility.IRandom rng = null )
     {
-        randomGeneratorPred = ( int min, int max ) => { return UnityEngine.Random.Range( min, max ); };
+        randomGeneratorPred = ( int min, int max ) => { return ( rng ?? Utility.DefaultRng ).Range( min, max ); };
     }
 
     public void AddItem( T item, int weight )

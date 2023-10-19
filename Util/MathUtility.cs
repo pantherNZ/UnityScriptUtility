@@ -135,11 +135,11 @@ public static partial class Utility
         return vec;
     }
 
-    public static Vector2 RandomPosition( this Rect rect )
+    public static Vector2 RandomPosition( this Rect rect, IRandom rng = null )
     {
         return new Vector2(
-            rect.x + UnityEngine.Random.value * rect.width,
-            rect.y + UnityEngine.Random.value * rect.height );
+            rect.x + ( rng ?? Utility.DefaultRng ).value * rect.width,
+            rect.y + ( rng ?? Utility.DefaultRng ).value * rect.height );
     }
 
     public static bool Overlaps( this RectTransform rectTrans1, RectTransform rectTrans2 )

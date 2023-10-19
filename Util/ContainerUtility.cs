@@ -182,33 +182,33 @@ public static partial class Utility
         return list.Count == 0;
     }
 
-    public static T RandomItem<T>( this List<T> list, T defaultValue = default )
+    public static T RandomItem<T>( this List<T> list, T defaultValue = default, IRandom rng = null )
     {
         if( list.IsEmpty() )
             return defaultValue;
-        return list[UnityEngine.Random.Range( 0, list.Count )];
+        return list[( rng ?? DefaultRng ).Range( 0, list.Count )];
     }
 
-    public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default )
+    public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default, IRandom rng = null )
     {
         if( dict.IsEmpty() )
             return defaultValue;
-        return dict.ElementAt( UnityEngine.Random.Range( 0, dict.Count ) );
+        return dict.ElementAt( ( rng ?? DefaultRng ).Range( 0, dict.Count ) );
     }
 
-    public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default )
+    public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default, IRandom rng = null )
     {
         if( dict.IsEmpty() )
             return defaultValue;
-        return dict.ElementAt( UnityEngine.Random.Range( 0, dict.Count ) );
+        return dict.ElementAt( ( rng ?? DefaultRng ).Range( 0, dict.Count ) );
     }
 
-    public static List<T> RandomShuffle<T>( this List<T> list )
+    public static List<T> RandomShuffle<T>( this List<T> list, IRandom rng = null )
     {
         for( int i = 0; i < list.Count; i++ )
         {
             T temp = list[i];
-            int randomIndex = UnityEngine.Random.Range( i, list.Count );
+            int randomIndex = ( rng ?? DefaultRng ).Range( i, list.Count );
             list[i] = list[randomIndex];
             list[randomIndex] = temp;
         }
@@ -293,12 +293,12 @@ public static partial class Utility
         }
     }
 
-    public static T RandomItem<T>( this IEnumerable<T> collection, T defaultValue = default )
+    public static T RandomItem<T>( this IEnumerable<T> collection, T defaultValue = default, IRandom rng = null )
     {
         var length = collection.Count();
         if( length == 0 )
             return defaultValue;
-        return collection.ElementAtOrDefault( UnityEngine.Random.Range( 0, length ) );
+        return collection.ElementAtOrDefault( ( rng ?? DefaultRng ).Range( 0, length ) );
     }
 
     public static IEnumerable<Pair<A, B>> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
