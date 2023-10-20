@@ -51,6 +51,7 @@ public static partial class Utility
     public class SystemRandom : IRandom
     {
         public SystemRandom( System.Random rng ) { this.rng = rng; }
+        public SystemRandom( int seed ) { rng = new System.Random( seed ); }
         public override float value { get => ( float )rng.NextDouble(); }
         public long NextLong( long min, long max ) => rng.NextLong( min, max );
         public long NextLong( long max ) => rng.NextLong( max );
