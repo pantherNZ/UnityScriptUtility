@@ -265,7 +265,7 @@ public static partial class Utility
         }
 
         var startRot = GetRotation( transform, localRotation );
-        var goalRot = Quaternion.Euler( startRot.eulerAngles + rotation );
+        var goalRot = startRot * Quaternion.Euler( rotation );
         float t = 0.0f;
 
         while( transform != null && t < 1.0f)

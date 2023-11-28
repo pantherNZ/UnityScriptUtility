@@ -18,7 +18,12 @@ public static partial class Utility
 			return k;
 		}
 
-		public class Quadratic
+        public static float Inverse( float k )
+        {
+            return 1.0f - k;
+        }
+
+        public class Quadratic
 		{
 			public static float In( float k )
 			{
