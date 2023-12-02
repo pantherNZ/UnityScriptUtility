@@ -15,9 +15,9 @@ public class ScenePhysicsTool : EditorWindow
 
     private void StepPhysics()
     {
-        Physics.autoSimulation = false;
+        Physics.simulationMode = SimulationMode.Script;
         Physics.Simulate( Time.fixedDeltaTime );
-        Physics.autoSimulation = true;
+        Physics.simulationMode = SimulationMode.FixedUpdate;
     }
 
     [MenuItem( "Tools/Scene Physics" )]
