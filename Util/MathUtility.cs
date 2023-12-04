@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 
 public static partial class Utility
@@ -25,9 +26,9 @@ public static partial class Utility
     public static Vector3 Set( this Vector3 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ); }
     public static Vector4 Set( this Vector4 vec, float val ) { return vec.SetX( val ).SetY( val ).SetZ( val ).SetW( val ); }
 
-    public static Vector2 SetMagnitude( this Vector2 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
-    public static Vector3 SetMagnitude( this Vector3 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
-    public static Vector4 SetMagnitude( this Vector4 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
+    [Pure] public static Vector2 SetMagnitude( this Vector2 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
+    [Pure] public static Vector3 SetMagnitude( this Vector3 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
+    [Pure] public static Vector4 SetMagnitude( this Vector4 vec, float val ) { return vec.sqrMagnitude < 0.0001f ? vec : vec.normalized * val; }
 
     public static Vector2 SetX( this Vector2 vec, float x ) { vec.x = x; return vec; }
     public static Vector2 SetY( this Vector2 vec, float y ) { vec.y = y; return vec; }
@@ -59,6 +60,35 @@ public static partial class Utility
     public static Vector2Int YX( this Vector3Int vec ) { return new Vector2Int( vec.y, vec.x ); }
     public static Vector2Int ZY( this Vector3Int vec ) { return new Vector2Int( vec.z, vec.y ); }
     public static Vector2Int YX( this Vector2Int vec ) { return new Vector2Int( vec.y, vec.x ); }
+
+    /* REF vec 3 versions
+    public static Vector2 Set( this Vector2 vec, float val ) { vec.SetX( val ); vec.SetY( val ); return vec; }
+    public static Vector3 Set( ref this Vector3 vec, float val ) { vec.SetX( val ); vec.SetY( val ); vec.SetZ( val ); return vec; }
+    public static Vector4 Set( ref this Vector4 vec, float val ) { vec.SetX( val ); vec.SetY( val ); vec.SetZ( val ); vec.SetW( val ); return vec; }
+
+    public static Vector2 SetMagnitude( ref this Vector2 vec, float val ) { vec.Normalize(); vec *= val; return vec; }
+    public static Vector3 SetMagnitude( ref this Vector3 vec, float val ) { vec.Normalize(); vec *= val; return vec; }
+    public static Vector4 SetMagnitude( ref this Vector4 vec, float val ) { vec.Normalize(); vec *= val; return vec; }
+
+    public static Vector2 SetX( ref this Vector2 vec, float x ) { vec.x = x; return vec; }
+    public static Vector2 SetY( ref this Vector2 vec, float y ) { vec.y = y; return vec; }
+    public static Vector3 SetX( ref this Vector3 vec, float x ) { vec.x = x; return vec; }
+    public static Vector3 SetY( ref this Vector3 vec, float y ) { vec.y = y; return vec; }
+    public static Vector3 SetZ( ref this Vector3 vec, float z ) { vec.z = z; return vec; }
+    public static Vector4 SetX( ref this Vector4 vec, float x ) { vec.x = x; return vec; }
+    public static Vector4 SetY( ref this Vector4 vec, float y ) { vec.y = y; return vec; }
+    public static Vector4 SetZ( ref this Vector4 vec, float z ) { vec.z = z; return vec; }
+    public static Vector4 SetW( ref this Vector4 vec, float w ) { vec.w = w; return vec; }
+
+    public static Vector2Int Set( ref this Vector2Int vec, int val ) { return vec.SetX( val ).SetY( val ); }
+    public static Vector3Int Set( ref this Vector3Int vec, int val ) { return vec.SetX( val ).SetY( val ).SetZ( val ); }
+
+    public static Vector2Int SetX( ref this Vector2Int vec, int x ) { vec.x = x; return vec; }
+    public static Vector2Int SetY( ref this Vector2Int vec, int y ) { vec.y = y; return vec; }
+    public static Vector3Int SetX( ref this Vector3Int vec, int x ) { vec.x = x; return vec; }
+    public static Vector3Int SetY( ref this Vector3Int vec, int y ) { vec.y = y; return vec; }
+    public static Vector3Int SetZ( ref this Vector3Int vec, int z ) { vec.z = z; return vec; }
+    */
 
     // Helper function to get Modulus (not remainder which is what % gives)
     public static int Mod( int a, int b )
