@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class IBaseEvent { }
@@ -31,6 +32,9 @@ public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
     public abstract void OnEventReceived( IBaseEvent e );
 
     public bool modifyListenerWithEnableDisable = true;
+
+	// TODO
+	//public bool enableDebugLogging = false;
 }
 
 public class EventSystem
@@ -42,7 +46,6 @@ public class EventSystem
         {
             if( _Instance == null )
                 _Instance = new EventSystem();
-
            return _Instance;
         }
 
@@ -55,34 +58,69 @@ public class EventSystem
         Remove,
     }
 
-    private readonly List<IEventReceiver> receivers = new List<IEventReceiver>();
+	private class EventReceiverData
+	{
+		public IEventReceiver receiver;
+		public Type[] eventTypes;
+	}
+
+    private readonly List<EventReceiverData> receivers = new List<EventReceiverData>();
     private readonly Queue<Pair<IBaseEvent, IEventReceiver>> queuedEvents = new Queue<Pair<IBaseEvent, IEventReceiver>>();
-    private readonly Queue<Pair<QueuedSubscriber, IEventReceiver>> queuedSubscribers = new Queue<Pair<QueuedSubscriber, IEventReceiver>>();
+    private readonly Queue<Pair<QueuedSubscriber, EventReceiverData>> queuedSubscribers = new Queue<Pair<QueuedSubscriber, EventReceiverData>>();
     private int iterationDepth = 0;
 
-    public void AddSubscriber( IEventReceiver receiver )
-    {
-        if( iterationDepth == 0 )
-        {
-            if( !receivers.Contains( receiver ) )
-                receivers.Add( receiver );
-        }
-        else
-        {
-            queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, IEventReceiver>( QueuedSubscriber.Add, receiver ) );
-        }
-    }
+	public bool enableDebugLogging = false;
 
-    public void RemoveSubscriber( IEventReceiver receiver )
+	private void Log( string msg )
+	{
+		if ( enableDebugLogging )
+		{
+			Debug.Log( "[EVENT SYSTEM] " + msg );
+		}
+	}
+
+	public void AddSubscriber( IEventReceiver receiver )
+	{
+		AddSubscriber( receiver, null );
+	}
+
+	public void AddSubscriber( IEventReceiver receiver, params Type[] eventTypes )
+	{
+		var newReceiver = new EventReceiverData 
+		{
+			receiver = receiver,
+			eventTypes = eventTypes,
+		};
+
+		if ( iterationDepth == 0 )
+		{
+			if ( !receivers.Any( x => x.receiver == receiver ) )
+			{
+				receivers.Add( newReceiver );
+				var eventTypesInfo = eventTypes != null ? $", event types: {string.Join( ", ", eventTypes.Select( x => x.ToString() ) )}" : string.Empty;
+				Log( $"Subscriber added: {receiver}${eventTypesInfo}" );
+			}
+		}
+		else
+		{
+			queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, EventReceiverData>( QueuedSubscriber.Add, newReceiver ) );
+			Log( "Subscriber queued for add: " + receiver.ToString() );
+		}
+	}
+
+	public void RemoveSubscriber( IEventReceiver receiver )
     {
         if( iterationDepth == 0 )
         {
-            receivers.Remove( receiver );
-        }
+            receivers.Remove( x => x.receiver == receiver );
+			Log( "Subscriber removed: " + receiver.ToString() );
+		}
         else
         {
-            queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, IEventReceiver>( QueuedSubscriber.Remove, receiver ) );
-        }
+			var removeReceiver = new EventReceiverData { receiver = receiver };
+			queuedSubscribers.Enqueue( new Pair<QueuedSubscriber, EventReceiverData>( QueuedSubscriber.Remove, removeReceiver ) );
+			Log( "Subscriber queued for remove: " + receiver.ToString() );
+		}
     }
 
     public void TriggerEvent( IBaseEvent e )
@@ -92,19 +130,26 @@ public class EventSystem
 
     public void TriggerEvent( IBaseEvent e, IEventReceiver callerToIgnore )
     {
-        iterationDepth++;
+		Log( "Event triggered start: " + e.ToString() );
+
+		iterationDepth++;
 
         var numRecievers = receivers.Count;
-        foreach( var receiver in receivers )
+		var receiversCalled = 0; 
+        foreach( var receiverData in receivers )
         {
-            if( receiver != null && receiver != callerToIgnore )
+            if( receiverData != null && receiverData != callerToIgnore &&
+				( receiverData.eventTypes == null || receiverData.eventTypes.IsEmpty() || receiverData.eventTypes.Contains( e.GetType() ) ) )
             {
-                receiver.OnEventReceived( e );
-                Debug.Assert( numRecievers == receivers.Count );
+				receiverData.receiver.OnEventReceived( e );
+				++receiversCalled;
+				Debug.Assert( numRecievers == receivers.Count );
             }
         }
 
-        iterationDepth--;
+		Log( $"Event triggered complete: {e}, receivers called: {receiversCalled}" );
+
+		iterationDepth--;
 
         if( iterationDepth == 0 )
         {
@@ -128,9 +173,9 @@ public class EventSystem
                 foreach( var queued in queuedSubscribers )
                 {
                     if( queued.First == QueuedSubscriber.Add )
-                        AddSubscriber( queued.Second );
+                        AddSubscriber( queued.Second.receiver, queued.Second.eventTypes );
                     else
-                        RemoveSubscriber( queued.Second );
+                        RemoveSubscriber( queued.Second.receiver );
                 }
 
                 queuedSubscribers.Clear();
@@ -146,9 +191,14 @@ public class EventSystem
 
     public void QueueEvent( IBaseEvent e, IEventReceiver callerToIgnore )
     {
-        if( iterationDepth == 0 )
-            TriggerEvent( e, callerToIgnore );
-        else
-            queuedEvents.Enqueue( new Pair<IBaseEvent, IEventReceiver>( e, callerToIgnore ) );
+		if ( iterationDepth == 0 )
+		{
+			TriggerEvent( e, callerToIgnore );
+		}
+		else
+		{
+			queuedEvents.Enqueue( new Pair<IBaseEvent, IEventReceiver>( e, callerToIgnore ) );
+			Log( $"Event queued: {e}" );
+		}
     }
 }
