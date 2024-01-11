@@ -35,9 +35,9 @@ public static partial class Utility
             return result;
         }
         public int Int() => Range( int.MinValue, int.MaxValue );
-        public bool Bool() => Range( 0, 100 ) < 50;
         public int Percent() => Range( 0, 100 );
-        public bool Roll( int chance ) => chance < Percent();
+        public bool Roll( int chance ) => chance >= 100 || chance >= Percent();
+		public bool Bool() => Roll( 50 );
         public float Gaussian( float mean, float stdDev )
         {
             float u1 = 1.0f - value;

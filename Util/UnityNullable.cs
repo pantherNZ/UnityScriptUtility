@@ -8,7 +8,7 @@ using UnityEditor;
 /// serializable struct, allowing unity to serialize it and show it in the inspector.
 /// </summary>
 [System.Serializable]
-public struct UnityNullable<T> where T : struct
+public struct UnityNullable<T> //where T : struct
 {
     public T Value
     {
@@ -45,15 +45,15 @@ public struct UnityNullable<T> where T : struct
         return new UnityNullable<T>( value );
     }
 
-    public static implicit operator UnityNullable<T>( System.Nullable<T> value )
-    {
-        return value.HasValue ? new UnityNullable<T>( value.Value ) : new UnityNullable<T>();
-    }
-
-    public static implicit operator System.Nullable<T>( UnityNullable<T> value )
-    {
-        return value.HasValue ? ( T? )value.Value : null;
-    }
+   // public static implicit operator UnityNullable<T>( System.Nullable<T> value )
+   // {
+   //     return value.HasValue ? new UnityNullable<T>( value.Value ) : new UnityNullable<T>();
+   // }
+   //
+   // public static implicit operator System.Nullable<T>( UnityNullable<T> value )
+   // {
+   //     return value.HasValue ? ( T? )value.Value : null;
+   // }
 }
 
 #if UNITY_EDITOR
