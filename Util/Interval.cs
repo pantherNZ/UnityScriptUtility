@@ -1,4 +1,7 @@
-﻿public class Interval : Pair<float, float>
+﻿using System;
+
+[Serializable]
+public class Interval : Pair<float, float>
 {
     public Interval( float min, float max )
         : base( min, max )
