@@ -20,7 +20,9 @@ public static partial class Utility
         } }
         public Quaternion rotation => Quaternion.Euler( Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ) );
         public float Range( float minInclusive, float maxInclusive ) => minInclusive + ( maxInclusive - minInclusive ) * value;
+		public float Range( Interval range ) => Range( range.First, range.Second );
         public int Range( int minInclusive, int maxExclusive ) => minInclusive + Mathf.FloorToInt( ( maxExclusive - minInclusive ) * value );
+		public int Range( IntervalInt range ) => Range( range.First, range.Second );
         public Color ColorHSV() => ColorHSV( 0f, 1f, 0f, 1f, 0f, 1f, 1f, 1f );
         public Color ColorHSV( float hueMin, float hueMax ) => ColorHSV( hueMin, hueMax, 0f, 1f, 0f, 1f, 1f, 1f );
         public Color ColorHSV( float hueMin, float hueMax, float saturationMin, float saturationMax ) => ColorHSV( hueMin, hueMax, saturationMin, saturationMax, 0f, 1f, 1f, 1f );
@@ -35,9 +37,9 @@ public static partial class Utility
             return result;
         }
         public int Int() => Range( int.MinValue, int.MaxValue );
-        public bool Bool() => Range( 0, 100 ) < 50;
         public int Percent() => Range( 0, 100 );
-        public bool Roll( int chance ) => chance < Percent();
+        public bool Roll( int chance ) => chance >= 100 || chance >= Percent();
+		public bool Bool() => Roll( 50 );
         public float Gaussian( float mean, float stdDev )
         {
             float u1 = 1.0f - value;

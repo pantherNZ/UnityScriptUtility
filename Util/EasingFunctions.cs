@@ -399,13 +399,13 @@ public static partial class Utility
 					EasingFunctionMethod.InOut => Easing.Sinusoidal.InOut,
 					_ => null,
 				},
-			EasingFunctionTypes.Spike => param1 != null ? x => Spike( x, param1.Value, param2 ?? param1.Value ) : x => Spike( x ),
-			EasingFunctionTypes.Parametric => param1 != null ? x => EaseInOutParametric( x, param1.Value ) : x => EaseInOutParametric( x ),
-			EasingFunctionTypes.CatmullRom => param1 != null ? x => CatmullRom( x, param1.Value, param2 ?? param1.Value ) : x => CatmullRom( x ),
+			EasingFunctionTypes.Spike => ( x => param1 != null ? Spike( x, param1.Value, param2 ?? param1.Value ) : Spike( x ) ),
+			EasingFunctionTypes.Parametric => ( x => param1 != null ? EaseInOutParametric( x, param1.Value ) : EaseInOutParametric( x ) ),
+			EasingFunctionTypes.CatmullRom => ( x => param1 != null ? CatmullRom( x, param1.Value, param2 ?? param1.Value ) : CatmullRom( x ) ),
 			EasingFunctionTypes.SmoothStep => SmoothStep,
 			EasingFunctionTypes.SmootherStep => SmootherStep,
 			EasingFunctionTypes.Inverse => Inverse,
-			EasingFunctionTypes.WeightedAverage => param1 != null ? x => WeightedAverage( x, param1.Value ) : x => WeightedAverage( x ),
+			EasingFunctionTypes.WeightedAverage => ( x => param1 != null ? WeightedAverage( x, param1.Value ) : WeightedAverage( x ) ),
 			_ => null,
 		};
 	}
