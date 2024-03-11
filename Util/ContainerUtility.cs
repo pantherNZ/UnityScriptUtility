@@ -223,6 +223,11 @@ public static partial class Utility
         if( idx == -1 )
             return default;
 
+        return RemoveAndGet( list, idx );
+    }
+
+    public static T RemoveAndGet<T>( this List<T> list, int idx )
+    {
         var found = list[idx];
         list.RemoveBySwap( idx );
         return found;
