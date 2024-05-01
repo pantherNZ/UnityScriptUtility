@@ -59,13 +59,13 @@ public static partial class Utility
         return list.Find( x => x.Second.Equals( item ) );
     }
 
-    public static void RemoveBySwap<T>( this List<T> list, int index )
+    public static void RemoveBySwap<T>( this IList<T> list, int index )
     {
         list[index] = list[list.Count - 1];
         list.RemoveAt( list.Count - 1 );
     }
 
-    public static bool Remove<T>( this List<T> list, Predicate<T> match )
+    public static bool Remove<T>( this IList<T> list, Predicate<T> match )
     {
         foreach( var (idx, x) in Enumerate( list ) )
         {
@@ -125,7 +125,7 @@ public static partial class Utility
         return dict;
     }
 
-    public static List<T> Rotate<T>( this List<T> list, int offset )
+    public static IList<T> Rotate<T>( this IList<T> list, int offset )
     {
         if( offset == 0 )
             return list;
@@ -134,7 +134,7 @@ public static partial class Utility
         return list.Skip( offset ).Concat( list.Take( offset ) ).ToList();
     }
 
-    public static T PopFront<T>( this List<T> list )
+    public static T PopFront<T>( this IList<T> list )
     {
         if( list.IsEmpty() )
             throw new System.ArgumentException( "You cannot use PopFront on an empty list!" );
@@ -144,7 +144,7 @@ public static partial class Utility
         return last;
     }
 
-    public static T PopBack<T>( this List<T> list )
+    public static T PopBack<T>( this IList<T> list )
     {
         if( list.IsEmpty() )
             throw new System.ArgumentException( "You cannot use PopBack on an empty list!" );
@@ -154,7 +154,7 @@ public static partial class Utility
         return last;
     }
 
-    public static T Front<T>( this List<T> list )
+    public static T Front<T>( this IList<T> list )
     {
         if( list.IsEmpty() )
             throw new System.ArgumentException( "You cannot use Front on an empty list!" );
@@ -163,7 +163,7 @@ public static partial class Utility
         return first;
     }
 
-    public static T Back<T>( this List<T> list )
+    public static T Back<T>( this IList<T> list )
     {
         if( list.IsEmpty() )
             throw new System.ArgumentException( "You cannot use Back on an empty list!" );
@@ -182,7 +182,7 @@ public static partial class Utility
         return list.Count == 0;
     }
 
-    public static T RandomItem<T>( this List<T> list, T defaultValue = default, IRandom rng = null )
+    public static T RandomItem<T>( this IList<T> list, T defaultValue = default, IRandom rng = null )
     {
         if( list.IsEmpty() )
             return defaultValue;
@@ -203,7 +203,7 @@ public static partial class Utility
         return dict.ElementAt( ( rng ?? DefaultRng ).Range( 0, dict.Count ) );
     }
 
-    public static List<T> RandomShuffle<T>( this List<T> list, IRandom rng = null )
+    public static IList<T> RandomShuffle<T>( this IList<T> list, IRandom rng = null )
     {
         for( int i = 0; i < list.Count; i++ )
         {
@@ -223,6 +223,11 @@ public static partial class Utility
         if( idx == -1 )
             return default;
 
+        return RemoveAndGet( list, idx );
+    }
+
+    public static T RemoveAndGet<T>( this List<T> list, int idx )
+    {
         var found = list[idx];
         list.RemoveBySwap( idx );
         return found;

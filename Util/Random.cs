@@ -64,6 +64,8 @@ public static partial class Utility
 
     public class UnityRandom : IRandom
     {
+        public UnityRandom() { UnityEngine.Random.InitState( ( int )DateTime.Now.Ticks ); }
+        public UnityRandom( int seed ) { UnityEngine.Random.InitState( seed ); }
         public override float value => UnityEngine.Random.value;
     }
 
