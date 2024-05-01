@@ -2,16 +2,85 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
+
+public abstract class Savable
+{
+	public string path { get; private set; }
+	public string fullPath { get { return Application.persistentDataPath + "/" + path + ".json"; } }
+
+	public Savable(string path) 
+	{
+		this.path = path;
+
+		if ( !File.Exists( fullPath ) )
+			return;
+		TextReader reader = File.OpenText( fullPath );
+		if ( reader == null )
+			return;
+
+		var json = reader.ReadToEnd();
+		reader.Dispose();
+		JsonConvert.PopulateObject( json, this );
+	}
+
+	public void Save()
+	{
+		var json = JsonConvert.SerializeObject( this, Formatting.Indented );
+		Directory.CreateDirectory( Path.GetDirectoryName( fullPath ) );
+		using ( var writer = new StreamWriter( File.Create( fullPath ) ) )
+		{
+			writer.Write( json );
+			writer.Dispose();
+		}
+	}
+
+	static public List<T> LoadAll<T>( string folderPath ) where T : Savable
+	{
+		var files = Directory.GetFiles( folderPath, "*.json" );
+		return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
+	}
+}
+
+public class AssetWrapper<T> where T : ScriptableObject
+{
+	[JsonProperty]
+	private string path;
+
+	[JsonIgnore]
+	private T _asset = null;
+	[JsonIgnore]
+	public T asset
+	{
+		get
+		{
+			if (_asset == null && path != null )
+				_asset = AssetDatabase.LoadAssetAtPath( path, typeof(T) ) as T;
+			return _asset;
+		}
+		set
+		{
+			_asset = value;
+			if ( value == null )
+			{
+				path = null;
+				return;
+			}
+			path = AssetDatabase.GetAssetPath(value);
+		}
+	}
+}
 
 public static class SaveGameSystem
 {
     public static int currentVersion = 1;
+	public static string currentSaveName = null;
     public static string folderName = "/SavedData/";
     public static string fileExtension = ".dat";
 
-    static public void Init( int version, string folder, string extension = ".dat" )
+    public static void Init( int version, string folder, string extension = ".dat" )
     {
         currentVersion = version;
         folderName = string.Format( "/{0}{1}", folder, folder.Length > 0 ? "/" : string.Empty );
@@ -46,13 +115,26 @@ public static class SaveGameSystem
         return files.ToList();
     }
 
-    public static bool SaveGame( string name )
+	private static bool ValidateSaveName( string name )
+	{
+		Debug.Assert( name != null || currentSaveName != null );
+
+		if ( name == null && currentSaveName == null )
+			return false;
+
+		if ( ( name ?? currentSaveName ).Length == 0 )
+			return false;
+
+		return true;
+	}
+
+    public static bool SaveGame( string name = null )
     {
-        if( name.Length == 0 )
-            return false;
+		if ( !ValidateSaveName( name ) )
+			return false;
 
         string folderPath = Application.persistentDataPath + folderName;
-        string fullPath = ConvertSaveNameToPath( name );
+        string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
 
         if( !Directory.Exists( folderPath ) )
             Directory.CreateDirectory( folderPath );
@@ -78,9 +160,12 @@ public static class SaveGameSystem
         return true;
     }
 
-    public static bool LoadGame( string name )
+    public static bool LoadGame( string name = null )
     {
-        string fullPath = ConvertSaveNameToPath( name );
+		if ( !ValidateSaveName( name ) )
+			return false;
+
+		string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
 
         if( !File.Exists( fullPath ) )
             return false;
@@ -103,9 +188,12 @@ public static class SaveGameSystem
         return true;
     }
 
-    public static bool DeleteGame( string name )
-    {
-        string fullPath = ConvertSaveNameToPath( name );
+    public static bool DeleteGame( string name = null )
+	{
+		if ( !ValidateSaveName( name ) )
+			return false;
+
+		string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
 
         if( !File.Exists( fullPath ) )
             return false;
@@ -127,6 +215,16 @@ public interface ISavableComponent
 {
     void Serialise( System.IO.BinaryWriter writer );
     void Deserialise( int saveVersion, System.IO.BinaryReader reader );
+}
+
+public abstract class SavableComponentInstance : MonoBehaviour, ISavableComponent
+{
+	protected virtual void Awake()
+	{
+		SaveGameSystem.AddSaveableComponent( this );
+	}
+	public abstract void Deserialise( int saveVersion, BinaryReader reader );
+	public abstract void Serialise( BinaryWriter writer );
 }
 
 public static partial class Utility

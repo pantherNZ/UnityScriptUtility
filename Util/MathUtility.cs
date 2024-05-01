@@ -110,10 +110,12 @@ public static partial class Utility
     public static Vector2 ToVector2( this Vector4 vec ) { return new Vector2( vec.x, vec.y ); }
     public static Vector3 ToVector3( this Vector4 vec ) { return new Vector3( vec.x, vec.y, vec.z ); }
     public static Vector3 ToVector3( this Vector2 vec, float z = 0.0f ) { return new Vector3( vec.x, vec.y, z ); }
+    public static Vector3 ToVector3XZ( this Vector2 vec, float y = 0.0f ) { return new Vector3( vec.x, y, vec.y ); }
     public static Vector2 ToVector2( this Vector2Int vec ) { return new Vector2( vec.x, vec.y ); }
     public static Vector3 ToVector3( this Vector3Int vec ) { return new Vector3( vec.x, vec.y, vec.z ); }
+	public static Vector3 ToVector3XZ( this Vector3Int vec, float y = 0.0f ) { return new Vector3( vec.x, y, vec.y ); }
 
-    public static Vector2Int ToVector2Int( this Vector2 vec, bool round = false )
+	public static Vector2Int ToVector2Int( this Vector2 vec, bool round = false )
     {
         if( round )
             return new Vector2Int( Mathf.RoundToInt( vec.x ), Mathf.RoundToInt( vec.y ) );
@@ -308,7 +310,17 @@ public static partial class Utility
         transform.rotation = data.rotation;
     }
 
-    public static short SafeDivide( this short v, short denominator ) { return ( short )( denominator == 0 ? 0 : v / denominator ); }
+	static public TransformData GetTransformData( this Transform transform )
+	{
+		return new TransformData()
+		{
+			translation = transform.position,
+			scale = transform.localScale,
+			rotation = transform.rotation
+		};
+	}
+
+	public static short SafeDivide( this short v, short denominator ) { return ( short )( denominator == 0 ? 0 : v / denominator ); }
     public static int SafeDivide( this int v, int denominator ) { return denominator == 0 ? 0 : v / denominator; }
     public static long SafeDivide( this long v, long denominator ) { return denominator == 0L ? 0L : v / denominator; }
     public static ushort SafeDivide( this ushort v, ushort denominator ) { return ( ushort )( denominator == 0 ? 0 : v / denominator ); }

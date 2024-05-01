@@ -69,11 +69,10 @@ public class EventSystem
     private readonly Queue<Pair<QueuedSubscriber, EventReceiverData>> queuedSubscribers = new Queue<Pair<QueuedSubscriber, EventReceiverData>>();
     private int iterationDepth = 0;
 
-	public bool enableDebugLogging = false;
-
 	private void Log( string msg )
 	{
-		if ( enableDebugLogging )
+		if ( Runtime.Game.GlobalConstantsHandler.Constants != null && 
+		     Runtime.Game.GlobalConstantsHandler.Constants.enableLogging )
 		{
 			Debug.Log( "[EVENT SYSTEM] " + msg );
 		}

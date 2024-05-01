@@ -68,7 +68,7 @@ public static partial class Utility
         return Sprite.Create( texture, new Rect( 0.0f, 0.0f, texture.width, texture.height ), new Vector2( 0.5f, 0.5f ) );
     }
 
-    public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null )
+    public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null, float duration = 5.0f )
     {
         colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
         var newObj = new GameObject();
@@ -93,23 +93,57 @@ public static partial class Utility
 
         line.SetPositions( points );
 
-        FunctionTimer.CreateTimer( 5.0f, () => newObj.Destroy() );
+        FunctionTimer.CreateTimer( duration, () => newObj.Destroy() );
     }
 
-    public static void DrawRect( Rect rect, Color? colour = null )
+    public static void DrawRect( Rect rect, Color? colour = null, float duration = 0.01f )
     {
         colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
-        Debug.DrawLine( rect.TopLeft(), rect.TopRight(), colour.Value );
-        Debug.DrawLine( rect.TopRight(), rect.BottomRight(), colour.Value );
-        Debug.DrawLine( rect.BottomRight(), rect.BottomLeft(), colour.Value );
-        Debug.DrawLine( rect.BottomLeft(), rect.TopLeft(), colour.Value );
+        Debug.DrawLine( rect.TopLeft(), rect.TopRight(), colour.Value, duration );
+        Debug.DrawLine( rect.TopRight(), rect.BottomRight(), colour.Value, duration );
+        Debug.DrawLine( rect.BottomRight(), rect.BottomLeft(), colour.Value, duration );
+        Debug.DrawLine( rect.BottomLeft(), rect.TopLeft(), colour.Value, duration );
     }
 
-    public static GameObject CreateSprite( string path, Vector3 pos, Vector2 scale, Quaternion? rotation = null, string layer = "Default", int order = 0 )
+	public static void DrawBox( Vector3 pos, Quaternion? rot = null, Vector3? scale = null, Color? colour = null, float duration = 0.01f )
+	{
+		rot ??= Quaternion.identity;
+		colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
+		scale ??= Vector3.one;
+
+		Matrix4x4 m = new Matrix4x4();
+		m.SetTRS( pos, rot.Value, scale.Value );
+
+		var point1 = m.MultiplyPoint( new Vector3( -0.5f, -0.5f, 0.5f ) );
+		var point2 = m.MultiplyPoint( new Vector3( 0.5f, -0.5f, 0.5f ) );
+		var point3 = m.MultiplyPoint( new Vector3( 0.5f, -0.5f, -0.5f ) );
+		var point4 = m.MultiplyPoint( new Vector3( -0.5f, -0.5f, -0.5f ) );
+
+		var point5 = m.MultiplyPoint( new Vector3( -0.5f, 0.5f, 0.5f ) );
+		var point6 = m.MultiplyPoint( new Vector3( 0.5f, 0.5f, 0.5f ) );
+		var point7 = m.MultiplyPoint( new Vector3( 0.5f, 0.5f, -0.5f ) );
+		var point8 = m.MultiplyPoint( new Vector3( -0.5f, 0.5f, -0.5f ) );
+
+		Debug.DrawLine( point1, point2, colour.Value, duration );
+		Debug.DrawLine( point2, point3, colour.Value, duration );
+		Debug.DrawLine( point3, point4, colour.Value, duration );
+		Debug.DrawLine( point4, point1, colour.Value, duration );
+
+		Debug.DrawLine( point5, point6, colour.Value, duration );
+		Debug.DrawLine( point6, point7, colour.Value, duration );
+		Debug.DrawLine( point7, point8, colour.Value, duration );
+		Debug.DrawLine( point8, point5, colour.Value, duration );
+
+		Debug.DrawLine( point1, point5, colour.Value, duration );
+		Debug.DrawLine( point2, point6, colour.Value, duration );
+		Debug.DrawLine( point3, point7, colour.Value, duration );
+		Debug.DrawLine( point4, point8, colour.Value, duration );
+	}
+
+	public static GameObject CreateSprite( string path, Vector3 pos, Vector2 scale, Quaternion? rotation = null, string layer = "Default", int order = 0 )
     {
         var sprite = new GameObject();
-        sprite.transform.position = pos;
-        sprite.transform.rotation = rotation ?? Quaternion.identity;
+        sprite.transform.SetPositionAndRotation( pos, rotation ?? Quaternion.identity );
         var spriteRenderer = sprite.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = Resources.Load<Sprite>( path );
         spriteRenderer.sortingOrder = order;

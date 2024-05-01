@@ -67,5 +67,22 @@ public static partial class Utility
         public override float value => UnityEngine.Random.value;
     }
 
-    public static UnityRandom DefaultRng = new UnityRandom();
+	public class SeededRandom : IRandom
+	{
+		int seed;
+
+		public SeededRandom( int seed ) { this.seed = seed; }
+
+		public override float value
+		{
+			get
+			{
+				seed = seed * 37 + 34222;
+				var rng = xxHashSharp.xxHash.CalculateHash( BitConverter.GetBytes( seed ) );
+				return rng / ( float )( uint.MaxValue - 1 );
+			}
+		}
+	}
+
+	public static UnityRandom DefaultRng = new UnityRandom();
 }
