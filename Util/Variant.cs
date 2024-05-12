@@ -24,9 +24,9 @@ public interface IVariant
 [Serializable]
 public class Variant<T0, T1> : IVariant
 {
-	[SerializeField] T0 _value0;
-	[SerializeField] T1 _value1;
-	[SerializeField] int _index;
+	[SerializeField] protected T0 _value0;
+	[SerializeField] protected T1 _value1;
+	[SerializeField] protected int _index;
 
 	public Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ) };
 
@@ -37,18 +37,24 @@ public class Variant<T0, T1> : IVariant
 		{
 			if( type == t.GetType() )
 			{
-				_index = idx;
-				switch ( _index )
-				{
-					case 0: _value0 = ( T0 )t; return;
-					case 1: _value1 = ( T1 )t; return;
-					default: throw new InvalidOperationException();
-				}
+				AssignValue( idx, t );
+				break;
 			}
 		}
 	}
 
-	Variant( int index, T0 value0 = default, T1 value1 = default )
+	protected virtual void AssignValue( int idx, object t )
+	{
+		_index = idx;
+		switch ( idx )
+		{
+			case 0: _value0 = ( T0 )t; return;
+			case 1: _value1 = ( T1 )t; return;
+			default: throw new InvalidOperationException();
+		}
+	}
+
+	protected Variant( int index, T0 value0 = default, T1 value1 = default )
 	{
 		_index = index;
 		_value0 = value0;
@@ -77,8 +83,8 @@ public class Variant<T0, T1> : IVariant
 			_value1 :
 			throw new InvalidOperationException( $"Cannot return as T1 as result is T{_index}" );
 
-	public static implicit operator Variant<T0, T1>( T0 t ) => new Variant<T0, T1>( 0, value0: t );
-	public static implicit operator Variant<T0, T1>( T1 t ) => new Variant<T0, T1>( 1, value1: t );
+	public static implicit operator Variant<T0, T1>( T0 t ) => new( 0, value0: t );
+	public static implicit operator Variant<T0, T1>( T1 t ) => new( 1, value1: t );
 
 	public void Switch( Action<T0> f0, Action<T1> f1 )
 	{
@@ -204,6 +210,95 @@ public class Variant<T0, T1> : IVariant
 			return ( hashCode * 397 ) ^ _index;
 		}
 	}
+}
+
+[Serializable]
+public class Variant<T0, T1, T2> : Variant<T0, T1>
+{
+	[SerializeField] T2 _value2;
+
+	public new Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ), typeof( T2 ) };
+
+	public Variant( object t ) : base( t )
+	{
+	}
+
+	protected override void AssignValue( int idx, object t )
+	{
+		if ( idx == 2 )
+		{
+			_index = idx;
+			_value2 = ( T2 )t;
+		}
+		else
+		{
+			base.AssignValue( idx, t );
+		}
+	}
+
+	protected Variant( int index, T0 value0 = default, T1 value1 = default, T2 value2 = default ) : base( index, value0, value1 )
+	{
+		_value2 = value2;
+	}
+
+	public new object Value { get { return _index == 2 ? _value2 : base.Value; } }
+
+	public bool IsT2 => _index == 2;
+
+	public T2 AsT2 =>
+		_index == 2 ?
+			_value2 :
+			throw new InvalidOperationException( $"Cannot return as T2 as result is T{_index}" );
+
+	public static implicit operator Variant<T0, T1, T2>( T0 t ) => new( 0, value0: t );
+	public static implicit operator Variant<T0, T1, T2>( T1 t ) => new( 1, value1: t );
+	public static implicit operator Variant<T0, T1, T2>( T2 t ) => new( 2, value2: t );
+
+	public void Switch( Action<T0> f0, Action<T1> f1, Action<T2> f2 )
+	{
+		if ( _index == 2 && f2 != null )
+		{
+			f2( _value2 );
+			return;
+		}
+		Switch( f0, f1 );
+	}
+
+	public TResult Match<TResult>( Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2 )
+	{
+		if ( _index == 2 && f2 != null )
+		{
+			return f2( _value2 );
+		}
+		return Match( f0, f1 );
+	}
+
+	public static new Variant<T0, T1, T2> FromT0( T0 input ) => input;
+	public static new Variant<T0, T1, T2> FromT1( T1 input ) => input;
+	public static Variant<T0, T1, T2> FromT2( T2 input ) => input;
+
+	bool Equals( Variant<T0, T1, T2> other ) =>
+		_index == other._index &&
+		_index switch
+		{
+			0 => Equals( _value0, other._value0 ),
+			1 => Equals( _value1, other._value1 ),
+			2 => Equals( _value2, other._value2 ),
+			_ => false
+		};
+
+	public override bool Equals( object obj )
+	{
+		if ( ReferenceEquals( null, obj ) )
+		{
+			return false;
+		}
+
+		return obj is Variant<T0, T1, T2> o && Equals( o );
+	}
+
+	public override string ToString() { return _index == 2 ? Functions.FormatValue(_value2 ) : base.ToString(); }
+	public override int GetHashCode() { return _index == 2 ? ( ( _value2?.GetHashCode() * 397 ) ^ _index ) ?? 0 : base.GetHashCode(); }
 }
 
 #if UNITY_EDITOR

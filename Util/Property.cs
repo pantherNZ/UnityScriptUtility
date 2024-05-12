@@ -11,23 +11,16 @@ public class Property<T>
 		Unbind();
 	}
 
-	// Simple binding for just new value (unbind doesn't work for this)
 	public void Bind( Action<T> func, bool andCall = true )
-	{
-		Bind( ( oldVal, newVal ) => func( newVal ), andCall );
-	}
-
-	// Binding for both before value AND new value
-	public void Bind( Action<T, T> func, bool andCall = true )
 	{
 		onChanged += func;
 		if ( andCall )
 		{
-			func( value, value );
+			func( value );
 		}
 	}
 
-	public void Unbind( Action<T, T> func )
+	public void Unbind( Action<T> func )
 	{
 		onChanged -= func;
 	}
@@ -43,12 +36,12 @@ public class Property<T>
 		onChanged -= binding.OnChanged;
 	}
 
-	protected void TriggerChanged( T oldValue )
+	protected void TriggerChanged()
 	{
-		onChanged?.Invoke( oldValue, value );
+		onChanged?.Invoke( value );
 	}
 
-	protected event Action<T, T> onChanged;
+	protected event Action<T> onChanged;
 	internal Action<Property<T>> onUnbound;
 }
 
@@ -61,11 +54,10 @@ public class ReadWriteProperty<T> : Property<T>
 			return;
 		}
 
-		var oldValue = this.value;
 		this.value = value;
 
 		if ( triggerCallback )
-			TriggerChanged( oldValue );
+			TriggerChanged();
 	}
 }
 
@@ -88,10 +80,10 @@ public class Binding<T> : Property<T>
 		UnbindFromSource();
 	}
 
-	internal void OnChanged( T oldValue, T value )
+	internal void OnChanged( T value )
 	{
 		this.value = value;
-		TriggerChanged( oldValue );
+		TriggerChanged();
 	}
 
 	public void UnbindFromSource()

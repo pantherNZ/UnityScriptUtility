@@ -182,7 +182,12 @@ public static partial class Utility
         return list.Count == 0;
     }
 
-    public static T RandomItem<T>( this IList<T> list, T defaultValue = default, IRandom rng = null )
+	public static bool IsEmpty( this string str )
+	{
+		return str.Length == 0;
+	}
+
+	public static T RandomItem<T>( this IList<T> list, T defaultValue = default, IRandom rng = null )
     {
         if( list.IsEmpty() )
             return defaultValue;
@@ -282,7 +287,20 @@ public static partial class Utility
         }
     }
 
-    public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection, int startIndex = 0 )
+	public static T Next<T>( this IEnumerable<T> collection, int count )
+	{
+		int counter = 0;
+		foreach ( var item in collection )
+		{
+			if ( counter == count )
+				return item;
+			counter++;
+		}
+
+		throw new ArgumentOutOfRangeException( "count cannot be larger than the collection" );
+	}
+
+	public static IEnumerable<Pair<int, T>> Enumerate<T>( this IEnumerable<T> collection, int startIndex = 0 )
     {
         foreach( var item in collection )
         {
