@@ -68,13 +68,17 @@ public static partial class Utility
         return Sprite.Create( texture, new Rect( 0.0f, 0.0f, texture.width, texture.height ), new Vector2( 0.5f, 0.5f ) );
     }
 
-    public static void DrawCircle( Vector3 position, float diameter, float lineWidth, Color? colour = null, float duration = 5.0f )
-    {
+    public static void DrawCircle( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f )
+	{
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 20, EAxis.Z );
+	}
+
+	static void DrawCircleInternal( Vector3 position, float diameter, float lineWidth, Color? colour, float duration, int segments, EAxis axis )
+	{
         colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
         var newObj = new GameObject();
         newObj.transform.position = position;
 
-        var segments = 20;
         var line = newObj.AddComponent<LineRenderer>();
         line.useWorldSpace = false;
         line.startWidth = lineWidth;
@@ -88,7 +92,13 @@ public static partial class Utility
         for( int i = 0; i < pointCount; i++ )
         {
             var rad = Mathf.Deg2Rad * ( i * 360.0f / segments );
-            points[i] = new Vector3( Mathf.Sin( rad ) * diameter / 2.0f, Mathf.Cos( rad ) * diameter / 2.0f, -0.1f );
+			points[i] = axis switch
+			{
+				EAxis.X => new Vector3( Mathf.Sin( rad ) * diameter / 2.0f, Mathf.Cos( rad ) * diameter / 2.0f, 0.0f ),
+				EAxis.Y => new Vector3( Mathf.Sin( rad ) * diameter / 2.0f, 0.0f, Mathf.Cos( rad ) * diameter / 2.0f ),
+				EAxis.Z => new Vector3( 0.0f, Mathf.Sin( rad ) * diameter / 2.0f, Mathf.Cos( rad ) * diameter / 2.0f ),
+				_ => throw new NotImplementedException(),
+			};
         }
 
         line.SetPositions( points );
@@ -96,7 +106,14 @@ public static partial class Utility
         FunctionTimer.CreateTimer( duration, () => newObj.Destroy() );
     }
 
-    public static void DrawRect( Rect rect, Color? colour = null, float duration = 0.01f )
+	public static void DrawSphere( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f )
+	{
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.X );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.Y );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.Z );
+	}
+
+	public static void DrawRect( Rect rect, Color? colour = null, float duration = 0.01f )
     {
         colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
         Debug.DrawLine( rect.TopLeft(), rect.TopRight(), colour.Value, duration );
