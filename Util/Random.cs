@@ -62,6 +62,7 @@ public static partial class Utility
         private System.Random rng;
     }
 
+	// Avoid using this class, unity only operates on a single state/seed
     public class UnityRandom : IRandom
     {
         public UnityRandom() { UnityEngine.Random.InitState( ( int )DateTime.Now.Ticks ); }
@@ -86,5 +87,10 @@ public static partial class Utility
 		}
 	}
 
-	public static UnityRandom DefaultRng = new UnityRandom();
+	public static UnityRandom _DefaultRng;
+	public static UnityRandom DefaultRng { get
+		{
+			_DefaultRng ??= new UnityRandom();
+			return _DefaultRng;
+		} }
 }
