@@ -7,18 +7,19 @@ public static partial class Utility
     {
         public abstract float value { get; }
         public Vector3 insideUnitSphere => new Vector3( Gaussian( 0.0f, 1.0f ), Gaussian( 0.0f, 1.0f ), Gaussian( 0.0f, 1.0f ) ).normalized;
-        public Vector2 insideUnitCircle { get
-        {
-            var angle = Range( 0, Mathf.PI * 2.0f );
-            return new Vector2( Mathf.Sin( angle ), Mathf.Cos( angle ) );
-        } }
+		public Vector2 insideUnitCircle => onUnitCircle * Range( 0, 1.0f );
         public Vector3 onUnitSphere { get
         {
                 var theta = 2.0f * Mathf.PI * value;
                 var phi = Mathf.Acos( 2.0f * value - 1.0f );
                 return new Vector3( Mathf.Sin( phi ) * Mathf.Cos( theta ), Mathf.Sin( phi ) * Mathf.Sin( theta ), Mathf.Cos( phi ) );
         } }
-        public Quaternion rotation => Quaternion.Euler( Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ) );
+		public Vector2 onUnitCircle { get
+        {
+            var angle = Range( 0, Mathf.PI * 2.0f );
+            return new Vector2( Mathf.Sin( angle ), Mathf.Cos( angle ) );
+        } }
+		public Quaternion rotation => Quaternion.Euler( Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ) );
         public float Range( float minInclusive, float maxInclusive ) => minInclusive + ( maxInclusive - minInclusive ) * value;
 		public float Range( Interval range ) => Range( range.First, range.Second );
         public int Range( int minInclusive, int maxExclusive ) => minInclusive + Mathf.FloorToInt( ( maxExclusive - minInclusive ) * value );

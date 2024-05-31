@@ -1,5 +1,10 @@
 ﻿using System;
+using System.IO;
+using Codice.CM.Common;
+using Codice.CM.SEIDInfo;
 using Newtonsoft.Json;
+using UnityEditor;
+using UnityEngine;
 
 public class Property<T>
 {
@@ -42,9 +47,10 @@ public class Property<T>
 	}
 
 	protected event Action<T> onChanged;
-	internal Action<Property<T>> onUnbound;
+	public event Action<Property<T>> onUnbound;
 }
 
+[JsonConverter( typeof( ReadWritePropertyJsonConverter ) )]
 public class ReadWriteProperty<T> : Property<T>
 {
 	public void SetValue( T value, bool triggerCallback = true )
@@ -96,5 +102,37 @@ public class Binding<T> : Property<T>
 		_onDestroyed = null;
 		if ( _propagateUnbind )
 			Unbind();
+	}
+}
+
+public class ReadWritePropertyJsonConverter : JsonConverter
+{
+	public override void WriteJson( JsonWriter writer, object value, JsonSerializer serializer )
+	{
+		Type propertyType = typeof( ReadWriteProperty<> );
+		Type inputType = value.GetType();
+		Type[] inputTypeArgs = inputType.GetGenericArguments();
+		Type genericType = propertyType.MakeGenericType( inputTypeArgs );
+		dynamic property = Convert.ChangeType( value, genericType );
+		serializer.Serialize(writer, property.value);
+	}
+
+	public override object ReadJson( JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer )
+	{
+		dynamic newProperty = Activator.CreateInstance( objectType );
+		if ( existingValue != null )
+			newProperty = Convert.ChangeType( existingValue, objectType );
+
+		Type wrappedType = objectType.GetGenericArguments()[0];
+		object genericDeserialized = serializer.Deserialize( reader, wrappedType );
+		dynamic deserialized = Convert.ChangeType( genericDeserialized, wrappedType );
+		newProperty.SetValue( deserialized );
+
+		return newProperty;
+	}
+
+	public override bool CanConvert( Type objectType )
+	{
+		return objectType.GetGenericTypeDefinition().Equals(typeof( ReadWriteProperty<> ));
 	}
 }

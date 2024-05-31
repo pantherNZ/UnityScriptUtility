@@ -330,4 +330,24 @@ public static partial class Utility
     public static double SafeDivide( this double v, double denominator ) { return denominator == 0.0d ? 0.0d : v / denominator; }
     public static decimal SafeDivide( this decimal v, decimal denominator ) { return denominator == 0.0m ? 0.0m : v / denominator; }
     public static byte SafeDivide( this byte v, byte denominator ) { return ( byte )( denominator == 0 ? 0 : v / denominator ); }
+
+	public static string ToQuantifiedString( int number )
+	{
+		if ( number < 1000 )
+			return number.ToString();
+		else if ( number < 10000 )
+			return string.Format( "{0:0.00}K", number / 1000.0f );
+		else if ( number < 100000 )
+			return string.Format( "{0:0.0}K", number / 1000.0f );
+		else if ( number < 1000000 )
+			return string.Format( "{0}K", number / 1000 );
+		else if ( number < 10000000 )
+			return string.Format( "{0:0.00}M", number / 1000000.0f );
+		else if ( number < 100000000 )
+			return string.Format( "{0:0.0}M", number / 1000000.0f );
+		else if ( number < 1000000000 )
+			return string.Format( "{0}M", number / 1000000 );
+		else
+			return string.Format( "{0:0.00}G", number / 1000000000.0f );
+	}
 }

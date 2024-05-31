@@ -28,7 +28,7 @@ public class Variant<T0, T1> : IVariant
 	[SerializeField] protected T1 _value1;
 	[SerializeField] protected int _index;
 
-	public Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ) };
+	public virtual Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ) };
 
 	public Variant( object t )
 	{
@@ -61,7 +61,7 @@ public class Variant<T0, T1> : IVariant
 		_value1 = value1;
 	}
 
-	public object Value =>
+	public virtual object Value =>
 		_index switch
 		{
 			0 => _value0,
@@ -217,7 +217,7 @@ public class Variant<T0, T1, T2> : Variant<T0, T1>
 {
 	[SerializeField] T2 _value2;
 
-	public new Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ), typeof( T2 ) };
+	public override Type[] GetVariantTypes() => new Type[] { typeof( T0 ), typeof( T1 ), typeof( T2 ) };
 
 	public Variant( object t ) : base( t )
 	{
@@ -241,7 +241,7 @@ public class Variant<T0, T1, T2> : Variant<T0, T1>
 		_value2 = value2;
 	}
 
-	public new object Value { get { return _index == 2 ? _value2 : base.Value; } }
+	public override object Value { get { return _index == 2 ? _value2 : base.Value; } }
 
 	public bool IsT2 => _index == 2;
 
@@ -302,7 +302,7 @@ public class Variant<T0, T1, T2> : Variant<T0, T1>
 }
 
 #if UNITY_EDITOR
-[CustomPropertyDrawer( typeof( Variant<,> ), true )]
+[CustomPropertyDrawer( typeof( IVariant ), true )]
 public class VariantPropertyDrawer : PropertyDrawer
 {
 	// Draw the property inside the given rect

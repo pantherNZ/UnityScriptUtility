@@ -344,4 +344,16 @@ public static partial class Utility
             yield return new Tuple<A, B, C>( iteratorA.Current, iteratorB.Current, iteratorC.Current );
         }
     }
+
+	public static IEnumerable<T> ToEnumerable<T>( this T[,] target )
+	{
+		foreach ( var item in target )
+			yield return item;
+	}
+
+	public static IEnumerable<T> ToEnumerable<T>( this T[,] target, int firstDimensionIdx )
+	{
+		for ( var i = 0; i < target.GetLength( 0 ); ++i )
+			yield return target[firstDimensionIdx, i];
+	}
 }
