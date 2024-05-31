@@ -68,25 +68,37 @@ public static partial class Utility
         return Sprite.Create( texture, new Rect( 0.0f, 0.0f, texture.width, texture.height ), new Vector2( 0.5f, 0.5f ) );
     }
 
-    public static void DrawCircle( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f )
+    public static void DrawCircle( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f, int segments = 20 )
 	{
-		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 20, EAxis.Z );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.Y );
 	}
 
 	static void DrawCircleInternal( Vector3 position, float diameter, float lineWidth, Color? colour, float duration, int segments, EAxis axis )
 	{
-        colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
-        var newObj = new GameObject();
-        newObj.transform.position = position;
+		var newObj = new GameObject();
+		newObj.transform.position = position;
+		colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-        var line = newObj.AddComponent<LineRenderer>();
-        line.useWorldSpace = false;
-        line.startWidth = lineWidth;
-        line.endWidth = lineWidth;
-        line.positionCount = segments + 1;
-        line.startColor = line.endColor = colour.Value;
+		var line = newObj.AddComponent<LineRenderer>();
+		line.useWorldSpace = false;
+		line.startWidth = lineWidth;
+		line.endWidth = lineWidth;
+		line.startColor = line.endColor = colour.Value;
+		var points = GetCirclePoints( diameter, segments, axis );
+		line.positionCount = points.Length;
+		line.SetPositions( points );
+		Material whiteDiffuseMat = new Material( Shader.Find( "Unlit/Texture" ) );
+		line.material = whiteDiffuseMat;
+		FunctionTimer.CreateTimer( duration, () =>
+		{
+			whiteDiffuseMat.Destroy();
+			newObj.Destroy();
+		} );
+	}
 
-        var pointCount = segments + 1;
+	static Vector3[] GetCirclePoints( float diameter, int segments, EAxis axis )
+	{
+        var pointCount = segments + 2;
         var points = new Vector3[pointCount];
 
         for( int i = 0; i < pointCount; i++ )
@@ -101,16 +113,14 @@ public static partial class Utility
 			};
         }
 
-        line.SetPositions( points );
-
-        FunctionTimer.CreateTimer( duration, () => newObj.Destroy() );
+		return points;
     }
 
-	public static void DrawSphere( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f )
+	public static void DrawSphere( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f, int segments = 20 )
 	{
-		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.X );
-		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.Y );
-		DrawCircleInternal( position, diameter, lineWidth, colour, duration, 10, EAxis.Z );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.X );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.Y );
+		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.Z );
 	}
 
 	public static void DrawRect( Rect rect, Color? colour = null, float duration = 0.01f )
