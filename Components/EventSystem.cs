@@ -40,7 +40,7 @@ public abstract class EventReceiverInstance : MonoBehaviour, IEventReceiver
 public class EventSystem
 {
     static EventSystem _Instance;
-    static public EventSystem Instance
+	public static EventSystem Instance
     {
         get
         {
@@ -51,6 +51,7 @@ public class EventSystem
 
         private set { }
     }
+	public static bool EnableLogging = true;
 
     private enum QueuedSubscriber
     {
@@ -71,8 +72,7 @@ public class EventSystem
 
 	private void Log( string msg )
 	{
-		if ( Runtime.Game.GlobalConstantsHandler.Constants != null && 
-		     Runtime.Game.GlobalConstantsHandler.Constants.enableLogging )
+		if ( EnableLogging )
 		{
 			Debug.Log( "[EVENT SYSTEM] " + msg );
 		}
