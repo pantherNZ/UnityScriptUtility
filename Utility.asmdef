@@ -1,10 +1,13 @@
 {
-    "name": "AssemblyDefinition",
+    "name": "Utility",
     "rootNamespace": "",
-    "references": ["Unity.TextMeshPro"],
+    "references": [
+        "Unity.TextMeshPro",
+        "Unity.TextMeshPro.Editor"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

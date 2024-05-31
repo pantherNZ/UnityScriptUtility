@@ -6,225 +6,144 @@ using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
-public abstract class Savable
+namespace Save
 {
-	public string path { get; private set; }
-	public string fullPath { get { return Application.persistentDataPath + "/" + path + ".json"; } }
-
-	public Savable(string path) 
+	public abstract class BaseSave
 	{
-		this.path = path;
-
-		if ( !File.Exists( fullPath ) )
-			return;
-		TextReader reader = File.OpenText( fullPath );
-		if ( reader == null )
-			return;
-
-		var json = reader.ReadToEnd();
-		reader.Dispose();
-		JsonConvert.PopulateObject( json, this );
-	}
-
-	public void Save()
-	{
-		var json = JsonConvert.SerializeObject( this, Formatting.Indented );
-		Directory.CreateDirectory( Path.GetDirectoryName( fullPath ) );
-		using ( var writer = new StreamWriter( File.Create( fullPath ) ) )
+		public BaseSave( string path, int version = 0 )
 		{
-			writer.Write( json );
-			writer.Dispose();
+			this.path = path;
+			this.version = version;
 		}
-	}
 
-	static public List<T> LoadAll<T>( string folderPath ) where T : Savable
-	{
-		var files = Directory.GetFiles( folderPath, "*.json" );
-		return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
-	}
-}
-
-public class AssetWrapper<T> where T : ScriptableObject
-{
-	[JsonProperty]
-	private string path;
-
-	[JsonIgnore]
-	private T _asset = null;
-	[JsonIgnore]
-	public T asset
-	{
-		get
+		[JsonIgnore] public int version { get; protected set; }
+		[JsonIgnore] public string path { get; protected set; }
+		[JsonIgnore] public abstract string fullPath { get; }
+		[JsonIgnore] public string directory => Path.GetDirectoryName( fullPath );
+		public abstract void Save();
+		public bool ExistsOnDisk() { return File.Exists( fullPath ); }
+		public bool DestroyFile() 
 		{
-			if (_asset == null && path != null )
-				_asset = AssetDatabase.LoadAssetAtPath( path, typeof(T) ) as T;
-			return _asset;
-		}
-		set
-		{
-			_asset = value;
-			if ( value == null )
+			if( ExistsOnDisk() )
 			{
-				path = null;
-				return;
+				File.Delete( fullPath );
+				return true;
 			}
-			path = AssetDatabase.GetAssetPath(value);
+			return false;
 		}
 	}
-}
 
-public static class SaveGameSystem
-{
-    public static int currentVersion = 1;
-	public static string currentSaveName = null;
-    public static string folderName = "/SavedData/";
-    public static string fileExtension = ".dat";
-
-    public static void Init( int version, string folder, string extension = ".dat" )
-    {
-        currentVersion = version;
-        folderName = string.Format( "/{0}{1}", folder, folder.Length > 0 ? "/" : string.Empty );
-        fileExtension = extension;
-    }
-
-    static string ConvertSaveNameToPath( string name )
-    {
-        return Application.persistentDataPath + folderName + name + fileExtension;
-    }
-
-    static string ConvertPathToSaveName( string path )
-    {
-        var index = path.LastIndexOf( '/' ) + 1;
-        return path.Substring( index, path.Length - index - fileExtension.Length );
-    }
-
-    public static bool SaveExists( string name )
-    {
-        return GetSaveGames().Find( x => x == name ) != null;
-    }
-
-    public static List<string> GetSaveGames()
-    {
-        string folderPath = Application.persistentDataPath + folderName;
-
-        if( !Directory.Exists( folderPath ) )
-            return new List<string>();
-
-        var files = Directory.GetFiles( folderPath, "*" + fileExtension );
-        files = Array.ConvertAll( files, x => ConvertPathToSaveName( x ) );
-        return files.ToList();
-    }
-
-	private static bool ValidateSaveName( string name )
+	public abstract class JSONSave : BaseSave
 	{
-		Debug.Assert( name != null || currentSaveName != null );
+		[JsonIgnore] public static readonly string extension = ".json";
+		[JsonIgnore] public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
-		if ( name == null && currentSaveName == null )
-			return false;
+		public JSONSave( string path, int version = 0 )
+			: base( path, version )
+		{
+			if ( !File.Exists( fullPath ) )
+				return;
 
-		if ( ( name ?? currentSaveName ).Length == 0 )
-			return false;
+			try
+			{
+				using var reader = File.OpenText( fullPath );
+				if ( reader == null )
+					return;
 
-		return true;
+				var json = reader.ReadToEnd();
+				JsonConvert.PopulateObject( json, this );
+			}
+			catch ( Exception e )
+			{
+				Debug.LogError( $"Failed to load JSON save file: {fullPath}\n{e}" );
+			}
+		}
+
+		public override void Save()
+		{
+			try
+			{
+				if ( !Directory.Exists( directory ) )
+					Directory.CreateDirectory( directory );
+
+				var json = JsonConvert.SerializeObject( this, Formatting.Indented );
+				using var writer = new StreamWriter( File.Create( fullPath ) );
+				writer.Write( json );
+			}
+			catch ( Exception e )
+			{
+				Debug.LogError( $"Failed to save json file: {fullPath}\n{e}" );
+			}
+		}
+
+		public static List<T> LoadAll<T>( string folderPath ) where T : JSONSave
+		{
+			var files = Directory.GetFiles( folderPath, $"*.{extension}" );
+			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
+		}
 	}
 
-    public static bool SaveGame( string name = null )
-    {
-		if ( !ValidateSaveName( name ) )
-			return false;
-
-        string folderPath = Application.persistentDataPath + folderName;
-        string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
-
-        if( !Directory.Exists( folderPath ) )
-            Directory.CreateDirectory( folderPath );
-
-        try
-        {
-            using var memoryStream = new MemoryStream();
-            using var writer = new BinaryWriter( memoryStream );
-
-            writer.Write( ( byte )( currentVersion ) );
-            foreach( var subscriber in subscribers )
-                subscriber.Serialise( writer );
-
-            var content = memoryStream.ToArray();
-            File.WriteAllBytes( fullPath, content );
-        }
-        catch( Exception e )
-        {
-            Debug.LogError( "Failed to save game: " + e.ToString() );
-            return false;
-        }
-
-        return true;
-    }
-
-    public static bool LoadGame( string name = null )
-    {
-		if ( !ValidateSaveName( name ) )
-			return false;
-
-		string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
-
-        if( !File.Exists( fullPath ) )
-            return false;
-
-        try
-        {
-            var bytes = File.ReadAllBytes( fullPath );
-            using var memoryStream = new MemoryStream( bytes, writable: false );
-            using var reader = new BinaryReader( memoryStream );
-            var version = reader.ReadByte();
-            foreach( var subscriber in subscribers )
-                subscriber.Deserialise( version, reader );
-        }
-        catch( Exception e )
-        {
-            Debug.LogError( "Failed to load game: " + e.ToString() );
-            return false;
-        }
-
-        return true;
-    }
-
-    public static bool DeleteGame( string name = null )
+	public abstract class BinarySave : BaseSave
 	{
-		if ( !ValidateSaveName( name ) )
-			return false;
+		public static readonly string extension = ".dat";
+		public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
-		string fullPath = ConvertSaveNameToPath( name ?? currentSaveName );
+		protected abstract void Serialise( System.IO.BinaryWriter writer );
+		protected abstract void Deserialise( System.IO.BinaryReader reader );
 
-        if( !File.Exists( fullPath ) )
-            return false;
+		public BinarySave( string path, int version = 0 )
+			: base( path, version )
+		{
+			if ( !File.Exists( fullPath ) )
+				return;
 
-        File.Delete( fullPath );
-        return true;
-    }
+			try
+			{
+				var bytes = File.ReadAllBytes( fullPath );
+				using var memoryStream = new MemoryStream( bytes, writable: false );
+				using var reader = new BinaryReader( memoryStream );
+				this.version = reader.ReadByte();
+				Deserialise( reader );
+			}
+			catch ( Exception e )
+			{
+				Debug.LogError( $"Failed to load binary save file: {fullPath}\n{e}" );
+			}
+		}
 
-    public static void AddSaveableComponent( ISavableComponent obj )
-    {
-        subscribers.Add( obj );
-    }
+		public override void Save()
+		{
+			try
+			{
+				if ( !Directory.Exists( directory ) )
+					Directory.CreateDirectory( directory );
+			
+				using var memoryStream = new MemoryStream();
+				using var writer = new BinaryWriter( memoryStream );
 
-    static readonly List<ISavableComponent> subscribers = new List<ISavableComponent>();
-}
+				writer.Write( ( byte )version );
+				Serialise( writer );
 
-// Base savable object interface
-public interface ISavableComponent
-{
-    void Serialise( System.IO.BinaryWriter writer );
-    void Deserialise( int saveVersion, System.IO.BinaryReader reader );
-}
+				var content = memoryStream.ToArray();
+				File.WriteAllBytes( fullPath, content );
+			}
+			catch ( Exception e )
+			{
+				Debug.LogError( "Failed to save game: " + e.ToString() );
+			}
+		}
 
-public abstract class SavableComponentInstance : MonoBehaviour, ISavableComponent
-{
-	protected virtual void Awake()
-	{
-		SaveGameSystem.AddSaveableComponent( this );
+		public static List<T> LoadAll<T>( string folderPath ) where T : BinarySave
+		{
+			var files = Directory.GetFiles( folderPath, $"*.{extension}" );
+			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
+		}
 	}
-	public abstract void Deserialise( int saveVersion, BinaryReader reader );
-	public abstract void Serialise( BinaryWriter writer );
+
+	[JsonArray]
+	public class Dictionary<K, V> : System.Collections.Generic.Dictionary<K, V>
+	{
+	}
 }
 
 public static partial class Utility
@@ -404,8 +323,43 @@ public static partial class Utility
     public static Int64 ReadInt64( this BinaryReader reader ) { return reader.ReadInt64(); }
     public static UInt64 ReadUInt64( this BinaryReader reader ) { return reader.ReadUInt64(); }
 
-#if DOTNET4
-    public static void Write( this BinaryWriter writer, object value )
+	public static void Write<T>( this BinaryWriter writer, T[] value )
+	{
+		writer.Write( value.Length );
+		foreach ( var obj in value )
+			writer.Write( obj );
+	}
+
+	public static T[] ReadArray<T>( this BinaryReader reader )
+	{
+		int count = reader.ReadInt32();
+		var data = new T[count];
+		for ( int i = 0; i < count; ++i )
+			data[i] = ( T )ReadObject( reader, typeof( T ) );
+		return data;
+	}
+
+	public static void Write<T>( this BinaryWriter writer, T[,] value )
+	{
+		writer.Write( value.GetLength( 0 ) );
+		writer.Write( value.GetLength( 1 ) );
+		for ( int x = 0; x < value.GetLength( 0 ); ++x )
+			for ( int y = 0; y < value.GetLength( 1 ); ++y )
+				writer.Write( value[x, y] );
+	}
+
+	public static T[,] ReadArray2D<T>( this BinaryReader reader )
+	{
+		int xCount = reader.ReadInt32();
+		int yCount = reader.ReadInt32();
+		var data = new T[xCount, yCount];
+		for ( int x = 0; x < xCount; ++x )
+			for ( int y = 0; y < yCount; ++y ) 
+				data[x, y] = ( T )ReadObject( reader, typeof( T ) );
+		return data;
+	}
+
+	public static void Write( this BinaryWriter writer, object value )
     {
         if( value == null )
         {
@@ -416,34 +370,33 @@ public static partial class Utility
         if( type.IsEnum )
         {
             var underlyingValue = ( dynamic )Convert.ChangeType( value, Enum.GetUnderlyingType( type ) );
-            Extensions.Write( writer, underlyingValue );
+			Utility.Write( writer, underlyingValue );
         }
         else if( type == typeof( Material ) )
         {
-            Extensions.Write( writer, Utility.GetResourcePath( value as Material ) );
+			Utility.Write( writer, Utility.GetResourcePath( value as Material ) );
         }
         else if( type == typeof( Mesh ) )
         {
             var path = Utility.GetResourcePath( value as Mesh );
-            Extensions.Write( writer, path );
+			Utility.Write( writer, path );
         }
         else if( type == typeof( PhysicMaterial ) )
         {
-            Extensions.Write( writer, Utility.GetResourcePath( value as PhysicMaterial ) );
+			Utility.Write( writer, Utility.GetResourcePath( value as PhysicMaterial ) );
         }
         else if( type == typeof( string ) )
         {
-            Extensions.Write( writer, value as string );
+			Utility.Write( writer, value as string );
         }
         else
         {
             var dynamicValue = ( dynamic )value;
-            Extensions.Write( writer, dynamicValue );
+			Utility.Write( writer, dynamicValue );
         }
     }
-#endif
 
-    public static object ReadObject( this BinaryReader reader, Type type )
+	public static object ReadObject( this BinaryReader reader, Type type )
     {
         if( type == typeof( string ) )
         {
