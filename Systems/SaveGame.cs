@@ -51,7 +51,10 @@ namespace Save
 					return;
 
 				var json = reader.ReadToEnd();
-				JsonConvert.PopulateObject( json, this );
+				JsonConvert.PopulateObject( json, this, new JsonSerializerSettings
+				{
+					TypeNameHandling = TypeNameHandling.Auto
+				} );
 			}
 			catch ( Exception e )
 			{
@@ -66,7 +69,10 @@ namespace Save
 				if ( !Directory.Exists( directory ) )
 					Directory.CreateDirectory( directory );
 
-				var json = JsonConvert.SerializeObject( this, Formatting.Indented );
+				var json = JsonConvert.SerializeObject( this, Formatting.Indented, new JsonSerializerSettings
+				{
+					TypeNameHandling = TypeNameHandling.Auto
+				} );
 				using var writer = new StreamWriter( File.Create( fullPath ) );
 				writer.Write( json );
 			}
