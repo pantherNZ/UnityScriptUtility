@@ -10,7 +10,16 @@ public static partial class Utility
     public static Vector3 Lerp( this Vector3 a, Vector3 b, float interp ) { return a + ( b - a ) * interp; }
     public static Vector4 Lerp( this Vector4 a, Vector4 b, float interp ) { return a + ( b - a ) * interp; }
 
-    public static float Distance( this GameObject a, GameObject b ) { return Distance( a.transform, b.transform ); }
+	// Use this, not lerp https://www.youtube.com/watch?v=LSNQuFEDOyQ&list=WL&index=6&t=24s
+	// Exponential decay constant, 1-25 useful range (slow to fast)
+	public static float ExpLerp( float a, float b, float decay ) { return b + ( a - b ) * ExpDecayVal( decay ); }
+	public static int ExpLerp( int a, int b, float decay ) { return ( int )( b + ( a - b ) * ExpDecayVal( -decay ) ); }
+	public static Vector2 ExpLerp( this Vector2 a, Vector2 b, float decay ) { return b + ( a - b ) * ExpDecayVal( decay  ); }
+	public static Vector3 ExpLerp( this Vector3 a, Vector3 b, float decay ) { return b + ( a - b ) * ExpDecayVal( decay  ); }
+	public static Vector4 ExpLerp( this Vector4 a, Vector4 b, float decay ) { return b + ( a - b ) * ExpDecayVal( decay ); }
+	private static float ExpDecayVal( float decay ) => Mathf.Exp( -decay * Time.deltaTime );
+
+	public static float Distance( this GameObject a, GameObject b ) { return Distance( a.transform, b.transform ); }
     public static float Distance( this GameObject a, Transform b ) { return Distance( a.transform, b ); }
     public static float Distance( this Transform a, GameObject b ) { return Distance( a, b.transform ); }
     public static float Distance( this Transform a, Transform b ) { return Mathf.Sqrt( DistanceSq( a, b ) ); }
