@@ -3,11 +3,11 @@ using UnityEngine;
 
 partial class Utility
 {
-	public static Texture2DArray CreateTexure2DArray( params Texture2D[] tex )
+	public static Texture2DArray CreateTexure2DArray( Texture2D[] tex, bool generateMips = true )
 	{
-		bool mips = tex[0].mipmapCount > 1;
+		bool mips = generateMips && tex[0].mipmapCount > 1;
 
-		var texArray = new Texture2DArray( tex[0].width, tex[0].height, tex.Length, tex[0].format, false, false )
+		var texArray = new Texture2DArray( tex[0].width, tex[0].height, tex.Length, tex[0].format, mips, false )
 		{
 			anisoLevel = tex[0].anisoLevel,
 			filterMode = tex[0].filterMode,
@@ -19,7 +19,7 @@ partial class Utility
 		{
 			if ( tex[texIndex] != null )
 			{
-				for ( int mip = 0; mip < 1/*tex[texIndex].mipmapCount*/; mip++ )
+				for ( int mip = 0; mip < ( generateMips ? tex[texIndex].mipmapCount : 1 ); mip++ )
 					Graphics.CopyTexture( tex[texIndex], 0, mip, texArray, texIndex, mip );
 			}
 		}

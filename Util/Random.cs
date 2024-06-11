@@ -38,8 +38,10 @@ public static partial class Utility
             return result;
         }
         public int Int() => Range( int.MinValue, int.MaxValue );
-        public int Percent() => Range( 0, 100 );
-        public bool Roll( int chance ) => chance >= 100 || chance >= Percent();
+		public int Percent() => Range( 0, 100 );
+		public bool Roll( int chance ) => chance >= 100 || chance >= Percent();
+		public float PercentF() => Range( 0.0f, 1.0f );
+		public bool Roll( float chance ) => chance >= 1.0f || chance >= PercentF();
 		public bool Bool() => Roll( 50 );
         public float Gaussian( float mean, float stdDev )
         {
