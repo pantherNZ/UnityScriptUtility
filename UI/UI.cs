@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine.UIElements;
 
 namespace Utils 
@@ -34,6 +33,16 @@ namespace Utils
 			{
 				label.text = label.text.Replace( "{" + i + "}", variables[i] );
 			}
+		}
+
+		static public VisualElement Head( VisualElement element )
+		{
+			var head = element;
+			while ( head.parent != null )
+			{
+				head = head.parent;
+			}
+			return head;
 		}
 	}
 }

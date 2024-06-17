@@ -23,7 +23,7 @@ public static partial class Utility
             return 1.0f - k;
         }
 
-		public class Quadratic
+        public class Quadratic
 		{
 			public static float In( float k )
 			{
