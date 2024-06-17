@@ -19,8 +19,9 @@ public static partial class Utility
             var angle = Range( 0, Mathf.PI * 2.0f );
             return new Vector2( Mathf.Sin( angle ), Mathf.Cos( angle ) );
         } }
-		public Quaternion rotation => Quaternion.Euler( Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ), Range( 0.0f, 360.0f ) );
-        public float Range( float minInclusive, float maxInclusive ) => minInclusive + ( maxInclusive - minInclusive ) * value;
+		public Quaternion rotation => Quaternion.Euler( angleDegrees, angleDegrees, angleDegrees );
+		public float angleDegrees => Range( 0.0f, 360.0f );
+		public float Range( float minInclusive, float maxInclusive ) => minInclusive + ( maxInclusive - minInclusive ) * value;
 		public float Range( Interval range ) => Range( range.First, range.Second );
         public int Range( int minInclusive, int maxExclusive ) => minInclusive + Mathf.FloorToInt( ( maxExclusive - minInclusive ) * value );
 		public int Range( IntervalInt range ) => Range( range.First, range.Second );
