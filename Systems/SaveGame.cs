@@ -10,7 +10,7 @@ namespace Save
 {
 	public abstract class BaseSave
 	{
-		public BaseSave( string path, int version = 0 )
+		public BaseSave( string path, int version )
 		{
 			this.path = path;
 			this.version = version;
@@ -38,7 +38,7 @@ namespace Save
 		[JsonIgnore] public static readonly string extension = ".json";
 		[JsonIgnore] public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
-		public JSONSave( string path, int version = 0 )
+		public JSONSave( string path, int version )
 			: base( path, version )
 		{
 			if ( !File.Exists( fullPath ) )
@@ -97,7 +97,7 @@ namespace Save
 		protected abstract void Serialise( System.IO.BinaryWriter writer );
 		protected abstract void Deserialise( System.IO.BinaryReader reader );
 
-		public BinarySave( string path, int version = 0 )
+		public BinarySave( string path, int version )
 			: base( path, version )
 		{
 			if ( !File.Exists( fullPath ) )

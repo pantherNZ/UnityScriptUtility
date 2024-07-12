@@ -65,6 +65,13 @@ public class ReadWriteProperty<T> : Property<T>
 		if ( triggerCallback )
 			TriggerChanged();
 	}
+
+	public ReadWriteProperty<T> Clone()
+	{
+		ReadWriteProperty<T> clone = new();
+		clone.SetValue( value );
+		return clone;
+	}
 }
 
 [Serializable]

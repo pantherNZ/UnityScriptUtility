@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using UnityEngine;
 
 public static partial class Utility
@@ -121,6 +120,8 @@ public static partial class Utility
     public static Vector3 ToVector3( this Vector2 vec, float z = 0.0f ) { return new Vector3( vec.x, vec.y, z ); }
     public static Vector3 ToVector3XZ( this Vector2 vec, float y = 0.0f ) { return new Vector3( vec.x, y, vec.y ); }
     public static Vector2 ToVector2( this Vector2Int vec ) { return new Vector2( vec.x, vec.y ); }
+    public static Vector3 ToVector3( this Vector2Int vec, float z = 0.0f ) { return new Vector3( vec.x, vec.y, z ); }
+    public static Vector3 ToVector3XZ( this Vector2Int vec, float y = 0.0f ) { return new Vector3( vec.x, y, vec.y ); }
     public static Vector3 ToVector3( this Vector3Int vec ) { return new Vector3( vec.x, vec.y, vec.z ); }
 	public static Vector3 ToVector3XZ( this Vector3Int vec, float y = 0.0f ) { return new Vector3( vec.x, y, vec.y ); }
 
@@ -782,5 +783,116 @@ public static partial class Utility
 			return StandardNormalTable[( int )( x * 100.0f )];
 		else
 			return 1.0f - StandardNormalTable[( int )( -x * 100.0f )];
+	}
+
+	static public bool RayCastAgainst2DCircle( Vector2 rayStart, Vector2 rayEnd, Vector2 circleCenter, float circleRadius, out Vector2 hitPoint )
+	{
+		Vector2 d = rayEnd - rayStart;
+		Vector2 f = rayStart - circleCenter;
+		float r = circleRadius;
+		float a = Vector2.Dot( d, d );
+		float b = 2 * Vector2.Dot( f, d );
+		float c = Vector2.Dot( f, f ) - r * r;
+
+		float discriminant = b * b - 4 * a * c;
+		if ( discriminant < 0 )
+		{
+			hitPoint = Vector2.negativeInfinity;
+			return false;
+		}
+		// ray didn't totally miss sphere,
+		// so there is a solution to
+		// the equation.
+
+		discriminant = Mathf.Sqrt( discriminant );
+
+		// either solution may be on or off the ray so need to test both
+		// t1 is always the smaller value, because BOTH discriminant and
+		// a are nonnegative.
+		float t1 = ( -b - discriminant ) / ( 2 * a );
+		float t2 = ( -b + discriminant ) / ( 2 * a );
+
+		// 3x HIT cases:
+		//          -o->             --|-->  |            |  --|->
+		// Impale(t1 hit,t2 hit), Poke(t1 hit,t2>1), ExitWound(t1<0, t2 hit), 
+
+		// 3x MISS cases:
+		//       ->  o                     o ->              | -> |
+		// FallShort (t1>1,t2>1), Past (t1<0,t2<0), CompletelyInside(t1<0, t2>1)
+
+		if ( t1 >= 0 && t1 <= 1 )
+		{
+			// t1 is the intersection, and it's closer than t2
+			// (since t1 uses -b - discriminant)
+			// Impale, Poke
+			hitPoint = rayStart + ( rayEnd - rayStart ) * t1;
+			return true;
+		}
+
+		// here t1 didn't intersect so we are either started
+		// inside the sphere or completely past it
+		if ( t2 >= 0 && t2 <= 1 )
+		{
+			// ExitWound
+			hitPoint = rayStart + ( rayEnd - rayStart ) * t2;
+			return true;
+		}
+
+		// no intn: FallShort, Past, CompletelyInside
+		hitPoint = circleCenter;
+		return true;
+	}
+
+	static public bool RayCastAgainstObject( Transform ray, float length, float width, GameObject target, out Vector2 hit )
+	{
+		Vector2 rayStart = new( ray.position.x, ray.position.z );
+		Vector2 rayEnd = rayStart + new Vector2( ray.transform.forward.x, ray.transform.forward.z ) * length;
+		Vector2 circleCenter = new( target.transform.position.x, target.transform.position.z );
+		var targetCollider = target.GetComponent<Collider>();
+		if ( targetCollider is SphereCollider sphereCollider )
+		{
+			circleCenter.x += sphereCollider.center.x;
+			circleCenter.y += sphereCollider.center.z;
+			RayCastAgainst2DCircle( rayStart, rayEnd, circleCenter, sphereCollider.radius + width / 2.0f, out hit );
+		}
+		else if ( targetCollider is CapsuleCollider capsuleCollider )
+		{
+			circleCenter.x += capsuleCollider.center.x;
+			circleCenter.y += capsuleCollider.center.z;
+			float cylinderLength = Mathf.Max(0, capsuleCollider.height - capsuleCollider.radius * 2);
+			if ( cylinderLength == 0 || capsuleCollider.direction == 1 )
+			{
+				RayCastAgainst2DCircle( rayStart, rayEnd, circleCenter, capsuleCollider.radius + width / 2.0f, out hit );
+			}
+			else
+			{
+				Vector2 delta = new Vector2( target.transform.forward.x, target.transform.forward.z ) * cylinderLength / 2.0f;
+				Vector2 circleCenter1 = circleCenter + delta;
+				RayCastAgainst2DCircle( rayStart, rayEnd, circleCenter1, capsuleCollider.radius + width / 2.0f, out var hit1 );
+				Vector2 circleCenter2 = circleCenter - delta;
+				RayCastAgainst2DCircle( rayStart, rayEnd, circleCenter2, capsuleCollider.radius + width / 2.0f, out var hit2 );
+				if ( hit1 == Vector2.negativeInfinity && hit2 == Vector2.negativeInfinity )
+				{
+					hit = Vector2.negativeInfinity;
+				}
+				else if ( hit1 == Vector2.negativeInfinity )
+					hit = hit2;
+				else if ( hit2 == Vector2.negativeInfinity )
+					hit = hit1;
+				else if ( ( hit1 - rayStart ).sqrMagnitude < ( hit2 - rayStart ).sqrMagnitude )
+					hit = hit1;
+				else
+					hit = hit2;
+			}
+		}
+		else
+			hit = Vector2.negativeInfinity;
+
+		if ( hit == Vector2.negativeInfinity )
+			return false;
+
+		Vector2 collisionNormal = ( hit - circleCenter ).normalized;
+		hit -= collisionNormal * width / 2.0f;
+		return true;
 	}
 }

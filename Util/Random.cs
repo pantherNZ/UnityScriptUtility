@@ -20,6 +20,7 @@ public static partial class Utility
             return new Vector2( Mathf.Sin( angle ), Mathf.Cos( angle ) );
         } }
 		public Quaternion rotation => Quaternion.Euler( angleDegrees, angleDegrees, angleDegrees );
+		public Quaternion yRotation => Quaternion.Euler( 0.0f, angleDegrees, 0.0f );
 		public float angleDegrees => Range( 0.0f, 360.0f );
 		public float Range( float minInclusive, float maxInclusive ) => minInclusive + ( maxInclusive - minInclusive ) * value;
 		public float Range( Interval range ) => Range( range.First, range.Second );
