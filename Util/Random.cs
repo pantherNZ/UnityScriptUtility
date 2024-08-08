@@ -19,6 +19,7 @@ public static partial class Utility
             var angle = Range( 0, Mathf.PI * 2.0f );
             return new Vector2( Mathf.Sin( angle ), Mathf.Cos( angle ) );
         } }
+		public Vector3 vector3 => new( value, value, value );
 		public Quaternion rotation => Quaternion.Euler( angleDegrees, angleDegrees, angleDegrees );
 		public Quaternion yRotation => Quaternion.Euler( 0.0f, angleDegrees, 0.0f );
 		public float angleDegrees => Range( 0.0f, 360.0f );
@@ -87,7 +88,8 @@ public static partial class Utility
 			{
 				seed = seed * 37 + 34222;
 				var rng = xxHashSharp.xxHash.CalculateHash( BitConverter.GetBytes( seed ) );
-				return rng / ( float )( uint.MaxValue - 1 );
+				var result = rng / ( float )( uint.MaxValue - 1 );
+				return result;
 			}
 		}
 	}

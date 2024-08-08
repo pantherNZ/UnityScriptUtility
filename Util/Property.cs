@@ -1,10 +1,5 @@
 ﻿using System;
-using System.IO;
-using Codice.CM.Common;
-using Codice.CM.SEIDInfo;
 using Newtonsoft.Json;
-using UnityEditor;
-using UnityEngine;
 
 public class Property<T>
 {

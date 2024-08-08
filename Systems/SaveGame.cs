@@ -378,7 +378,8 @@ public static partial class Utility
             var underlyingValue = ( dynamic )Convert.ChangeType( value, Enum.GetUnderlyingType( type ) );
 			Utility.Write( writer, underlyingValue );
         }
-        else if( type == typeof( Material ) )
+#if UNITY_EDITOR
+		else if ( type == typeof( Material ) )
         {
 			Utility.Write( writer, Utility.GetResourcePath( value as Material ) );
         }
@@ -391,7 +392,8 @@ public static partial class Utility
         {
 			Utility.Write( writer, Utility.GetResourcePath( value as PhysicMaterial ) );
         }
-        else if( type == typeof( string ) )
+#endif
+		else if( type == typeof( string ) )
         {
 			Utility.Write( writer, value as string );
         }

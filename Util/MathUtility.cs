@@ -188,7 +188,23 @@ public static partial class Utility
             rect.y + ( rng ?? Utility.DefaultRng ).value * rect.height );
     }
 
-    public static bool Overlaps( this RectTransform rectTrans1, RectTransform rectTrans2 )
+	public static Vector3 RandomPosition( this Bounds bound, IRandom rng = null )
+	{
+		return bound.min + new Vector3(
+			( rng ?? Utility.DefaultRng ).value * bound.size.x,
+			( rng ?? Utility.DefaultRng ).value * bound.size.y,
+			( rng ?? Utility.DefaultRng ).value * bound.size.z );
+	}
+
+	public static Vector3Int RandomPosition( this BoundsInt bound, IRandom rng = null )
+	{
+		return new Vector3Int(
+			( rng ?? Utility.DefaultRng ).Range( bound.xMin, bound.xMax + 1 ),
+			( rng ?? Utility.DefaultRng ).Range( bound.yMin, bound.yMax + 1 ),
+			( rng ?? Utility.DefaultRng ).Range( bound.zMin, bound.zMax + 1 ) );
+	}
+
+	public static bool Overlaps( this RectTransform rectTrans1, RectTransform rectTrans2 )
     {
         Rect rect1 = new Rect( rectTrans1.localPosition.x, rectTrans1.localPosition.y, rectTrans1.rect.width * rectTrans1.localScale.x, rectTrans1.rect.height * rectTrans1.localScale.y );
         Rect rect2 = new Rect( rectTrans2.localPosition.x, rectTrans2.localPosition.y, rectTrans2.rect.width * rectTrans1.localScale.x, rectTrans2.rect.height * rectTrans1.localScale.y );

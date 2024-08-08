@@ -1,6 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
+
 public static partial class Utility
 {
 	public class FindMissingScriptErrors : EditorWindow
@@ -128,3 +130,5 @@ public static partial class Utility
 		}
 	}
 }
+
+#endif

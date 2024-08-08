@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+
 partial class Utility
 {
 	public static Texture2DArray CreateTexure2DArray( Texture2D[] tex, bool generateMips = true )
@@ -27,6 +28,8 @@ partial class Utility
 		return texArray;
 	}
 }
+
+#if UNITY_EDITOR
 
 public class TextureArrayWizard : ScriptableWizard
 {
@@ -56,3 +59,5 @@ public class TextureArrayWizard : ScriptableWizard
 
 	public Texture2D[] textures;
 }
+
+#endif
