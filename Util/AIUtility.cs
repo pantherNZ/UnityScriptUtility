@@ -14,4 +14,10 @@ public static partial class Utility
 		}
 		return null;
 	}
+
+	public static int? GetNavMeshAreaID( string name )
+	{
+		var id = NavMesh.GetAreaFromName( name );
+		return id != -1 ? id : null;
+	}
 }
