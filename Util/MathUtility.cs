@@ -204,6 +204,11 @@ public static partial class Utility
 			( rng ?? Utility.DefaultRng ).Range( bound.zMin, bound.zMax + 1 ) );
 	}
 
+	public static Color Random( this Gradient gradient, IRandom rng = null )
+	{
+		return gradient.Evaluate( ( rng ?? Utility.DefaultRng ).value );
+	}
+
 	public static bool Overlaps( this RectTransform rectTrans1, RectTransform rectTrans2 )
     {
         Rect rect1 = new Rect( rectTrans1.localPosition.x, rectTrans1.localPosition.y, rectTrans1.rect.width * rectTrans1.localScale.x, rectTrans1.rect.height * rectTrans1.localScale.y );
@@ -213,13 +218,13 @@ public static partial class Utility
     }
 
 
-    static public Vector2 TopLeft( this Rect rect ) { return new Vector2( rect.xMin, rect.yMax ); }
-    static public Vector2 TopRight( this Rect rect ) { return new Vector2( rect.xMax, rect.yMax ); }
-    static public Vector2 BottomLeft( this Rect rect ) { return new Vector2( rect.xMin, rect.yMin ); }
-    static public Vector2 BottomRight( this Rect rect ) { return new Vector2( rect.xMax, rect.yMin ); }
-    static public Rect ToRect( this Bounds bound ) { return new Rect( bound.center - bound.extents, bound.size ); }
+    public static Vector2 TopLeft( this Rect rect ) { return new Vector2( rect.xMin, rect.yMax ); }
+    public static Vector2 TopRight( this Rect rect ) { return new Vector2( rect.xMax, rect.yMax ); }
+    public static Vector2 BottomLeft( this Rect rect ) { return new Vector2( rect.xMin, rect.yMin ); }
+    public static Vector2 BottomRight( this Rect rect ) { return new Vector2( rect.xMax, rect.yMin ); }
+    public static Rect ToRect( this Bounds bound ) { return new Rect( bound.center - bound.extents, bound.size ); }
 
-    static public bool Contains( this Rect rect, Rect other )
+	public static bool Contains( this Rect rect, Rect other )
     {
         return rect.Contains( other.TopLeft() )
              && rect.Contains( other.TopRight() )
