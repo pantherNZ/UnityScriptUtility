@@ -109,7 +109,13 @@ public static partial class Utility
         return ( ( a %= b ) < 0.0f ) ? a + b : a;
     }
 
-    public static Vector2 Vector2FromAngle( float angleDegrees )
+	// https://referencesource.microsoft.com/#System.Web/Util/HashCodeCombiner.cs
+	public static int CombineHashes( int h1, int h2 )
+	{
+		return ( ( ( h1 << 5 ) + h1 ) ^ h2 );
+	}
+
+	public static Vector2 Vector2FromAngle( float angleDegrees )
     {
         return new Vector2( Mathf.Cos( angleDegrees * Mathf.Deg2Rad ), Mathf.Sin( angleDegrees * Mathf.Deg2Rad ) );
     }
@@ -286,19 +292,19 @@ public static partial class Utility
         }
     }
 
-    static public void GetScaledAxes( this Matrix4x4 mat, out Vector3 X, out Vector3 Y, out Vector3 Z )
+    public static void GetScaledAxes( this Matrix4x4 mat, out Vector3 X, out Vector3 Y, out Vector3 Z )
     {
         X = new Vector3( mat[0, 0], mat[0, 1], mat[0, 2] );
         Y = new Vector3( mat[1, 0], mat[1, 1], mat[1, 2] );
         Z = new Vector3( mat[2, 0], mat[2, 1], mat[2, 2] );
     }
 
-    static public Vector3 GetUnitAxis( this Matrix4x4 mat, EAxis InAxis )
+    public static Vector3 GetUnitAxis( this Matrix4x4 mat, EAxis InAxis )
     {
         return mat.GetScaledAxis( InAxis ).normalized;
     }
 
-    static public void GetUnitAxes( this Matrix4x4 mat, Vector3 x, Vector3 y, Vector3 z )
+    public static void GetUnitAxes( this Matrix4x4 mat, Vector3 x, Vector3 y, Vector3 z )
     {
         mat.GetScaledAxes( out x, out y, out z );
         x.Normalize();
@@ -306,7 +312,7 @@ public static partial class Utility
         z.Normalize();
     }
 
-    static public void SetAxis( this Matrix4x4 mat, int i, Vector3 axis )
+    public static void SetAxis( this Matrix4x4 mat, int i, Vector3 axis )
     {
         //checkSlow( i >= 0 && i <= 2 );
         mat[i, 0] = axis.x;
@@ -349,19 +355,19 @@ public static partial class Utility
         }
     }
 
-    static public Vector3 Rotation( this Vector3 vec )
+    public static Vector3 Rotation( this Vector3 vec )
     {
         return new Vector3( Mathf.Atan2( vec.y, vec.x ), Mathf.Atan2( vec.z, vec.ToVector2().magnitude ), 0.0f );
     }
 
-    static public void SetTransformData( this Transform transform, TransformData data )
+    public static void SetTransformData( this Transform transform, TransformData data )
     {
         transform.position = data.translation;
         transform.localScale = data.scale;
         transform.rotation = data.rotation;
     }
 
-	static public TransformData GetTransformData( this Transform transform )
+	public static TransformData GetTransformData( this Transform transform )
 	{
 		return new TransformData()
 		{
@@ -402,7 +408,7 @@ public static partial class Utility
 			return string.Format( "{0:0.00}G", number / 1000000000.0f );
 	}
 
-	static public bool RayCastAgainst2DCircle( Vector2 rayStart, Vector2 rayEnd, Vector2 circleCenter, float circleRadius, out Vector2 hitPoint )
+	public static bool RayCastAgainst2DCircle( Vector2 rayStart, Vector2 rayEnd, Vector2 circleCenter, float circleRadius, out Vector2 hitPoint )
 	{
 		Vector2 d = rayEnd - rayStart;
 		Vector2 f = rayStart - circleCenter;
@@ -460,7 +466,7 @@ public static partial class Utility
 		return true;
 	}
 
-	static public bool RayCastAgainstObject( Transform ray, float length, float width, GameObject target, out Vector2 hit )
+	public static bool RayCastAgainstObject( Transform ray, float length, float width, GameObject target, out Vector2 hit )
 	{
 		Vector2 rayStart = new( ray.position.x, ray.position.z );
 		Vector2 rayEnd = rayStart + new Vector2( ray.transform.forward.x, ray.transform.forward.z ) * length;
