@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using Newtonsoft.Json;
+using UnityEditor;
+using UnityEngine;
 
+[Serializable]
 public class Property<T>
 {
 	[JsonProperty]
+	[field: SerializeField]
+	[DebuggerDisplay( "Property : {value}" )]
 	public T value { get; protected set; }
 
 	~Property()
@@ -46,6 +52,8 @@ public class Property<T>
 }
 
 [JsonConverter( typeof( ReadWritePropertyJsonConverter ) )]
+[Serializable]
+[DebuggerDisplay( "ReadWriteProperty : {value}" )]
 public class ReadWriteProperty<T> : Property<T>
 {
 	public void SetValue( T value, bool triggerCallback = true )
@@ -70,6 +78,7 @@ public class ReadWriteProperty<T> : Property<T>
 }
 
 [Serializable]
+[DebuggerDisplay( "Binding : {value}" )]
 public class Binding<T> : Property<T>
 {
 	private Action<Binding<T>> _onDestroyed;
@@ -138,3 +147,16 @@ public class ReadWritePropertyJsonConverter : JsonConverter
 		return objectType.GetGenericTypeDefinition().Equals(typeof( ReadWriteProperty<> ));
 	}
 }
+
+
+#if UNITY_EDITOR
+[CustomPropertyDrawer( typeof( Property<> ) )]
+internal class UtilityPropertyDrawer : PropertyDrawer
+{
+	public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
+	{
+		SerializedProperty prop = property.FindPropertyRelative( "<value>k__BackingField" );
+		EditorGUILayout.PropertyField( prop, label );
+	}
+}
+#endif

@@ -13,6 +13,7 @@ public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 	const string KeysFieldName = "m_keys";
 	const string ValuesFieldName = "m_values";
 	protected const float IndentWidth = 15f;
+	protected const float KeyMargin = 20f;
 
 	static GUIContent s_iconPlus = IconContent( "Toolbar Plus", "Add entry" );
 	static GUIContent s_iconMinus = IconContent( "Toolbar Minus", "Remove entry" );
@@ -123,7 +124,7 @@ public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 				buttonPosition.height = EditorGUIUtility.singleLineHeight;
 				if( GUI.Button( buttonPosition, s_iconMinus, s_buttonStyle ) )
 				{
-					buttonAction = Action.Remove;
+					buttonAction = Action.Remove;	
 					buttonActionIndex = i;
 				}
 
@@ -256,7 +257,8 @@ public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 		float keyPropertyHeight = EditorGUI.GetPropertyHeight( keyProperty );
 		var keyPosition = linePosition;
 		keyPosition.height = keyPropertyHeight;
-		keyPosition.width = labelWidth - IndentWidth;
+		keyPosition.width = labelWidth - IndentWidth - KeyMargin;
+		keyPosition.x += KeyMargin;
 		EditorGUIUtility.labelWidth = keyPosition.width * labelWidthRelative;
 		EditorGUI.PropertyField( keyPosition, keyProperty, TempContent( keyLabel ), true );
 
@@ -281,7 +283,8 @@ public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 		float keyPropertyHeight = EditorGUI.GetPropertyHeight( keyProperty );
 		var keyPosition = linePosition;
 		keyPosition.height = keyPropertyHeight;
-		keyPosition.width = labelWidth - IndentWidth;
+		keyPosition.width = labelWidth - IndentWidth - KeyMargin;
+		keyPosition.x += KeyMargin;
 		EditorGUI.PropertyField( keyPosition, keyProperty, GUIContent.none, true );
 
 		float valuePropertyHeight = EditorGUI.GetPropertyHeight( valueProperty );
@@ -312,6 +315,8 @@ public class SerializableDictionaryPropertyDrawer : PropertyDrawer
 		switch( property.propertyType )
 		{
 			case SerializedPropertyType.Generic:
+			case SerializedPropertyType.Vector2:
+			case SerializedPropertyType.Vector3:
 			case SerializedPropertyType.Vector4:
 			case SerializedPropertyType.Quaternion:
 				return true;

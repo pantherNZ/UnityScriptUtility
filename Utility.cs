@@ -53,12 +53,29 @@ public static partial class Utility
     {
         var resource = AssetDatabase.GetAssetPath( @object );
         var startIdx = resource.IndexOf( "Resources/" ) + 10;
-        resource = resource.Substring( startIdx, resource.LastIndexOf( '.' ) - startIdx );
+        resource = resource[startIdx..resource.LastIndexOf( '.' )];
         return resource;
     }
 #endif
 
-    public static Sprite CreateSprite( Texture2D texture )
+	public static void GetResourcePaths( string path, ref List<string> pathsOut, bool recursive = true )
+	{
+		if ( path.EndsWith( '/' ) )
+			path = path[0..^1];
+
+		var fullPath = Application.dataPath + "/Resources/" + path;
+		DirectoryInfo dirInfo = new DirectoryInfo( fullPath );
+
+		foreach ( var file in dirInfo.GetFiles() )
+			if ( file.Name.EndsWith( ".asset" ) )
+				pathsOut.Add( path + "/" + file.Name[0..^6] );
+
+		if( recursive )
+			foreach ( var dir in dirInfo.GetDirectories() )
+				GetResourcePaths( path + "/" + dir.Name, ref pathsOut );
+	}
+
+	public static Sprite CreateSprite( Texture2D texture )
     {
         if( texture == null )
         {
@@ -114,13 +131,20 @@ public static partial class Utility
         }
 
 		return points;
-    }
+	}
 
 	public static void DrawSphere( Vector3 position, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f, int segments = 20 )
 	{
 		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.X );
 		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.Y );
 		DrawCircleInternal( position, diameter, lineWidth, colour, duration, segments, EAxis.Z );
+	}
+
+	public static void DrawCapsule( Vector3 from, Vector3 to, float diameter, float lineWidth = 0.1f, Color? colour = null, float duration = 5.0f, int segments = 20 )
+	{
+		DrawSphere( from, diameter, lineWidth, colour, duration, segments );
+		Debug.DrawLine( from, to, Color.red, duration );
+		DrawSphere( to, diameter, lineWidth, colour, duration, segments );
 	}
 
 	public static void DrawRect( Rect rect, Color? colour = null, float duration = 0.01f )
@@ -297,7 +321,17 @@ public static partial class Utility
         Destroy( component );
     }
 
-    public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
+	public static T GetOrAddComponent<T>( this GameObject gameObject ) where T : Component
+	{
+		T component = gameObject.GetComponent<T>();
+		if ( component == null )
+		{
+			component = gameObject.AddComponent<T>();
+		}
+		return component;
+	}
+
+	public static IEnumerable<Pair<int, Transform>> Enumerate( this Transform collection, int startIndex = 0 )
     {
         foreach( Transform item in collection )
         {

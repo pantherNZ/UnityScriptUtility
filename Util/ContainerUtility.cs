@@ -324,24 +324,24 @@ public static partial class Utility
         return collection.ElementAtOrDefault( ( rng ?? DefaultRng ).Range( 0, length ) );
     }
 
-    public static IEnumerable<Pair<A, B>> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
+    public static IEnumerable<( A, B )> Zip<A, B>( this IEnumerable<A> a, IEnumerable<B> b )
     {
         using var iteratorA = a.GetEnumerator();
         using var iteratorB = b.GetEnumerator();
         while( iteratorA.MoveNext() && iteratorB.MoveNext() )
         {
-            yield return new Pair<A, B>( iteratorA.Current, iteratorB.Current );
+            yield return ( iteratorA.Current, iteratorB.Current );
         }
     }
 
-    public static IEnumerable<Tuple<A, B, C>> Zip<A, B, C>( this IEnumerable<A> a, IEnumerable<B> b, IEnumerable<C> c )
+    public static IEnumerable<( A, B, C )> Zip<A, B, C>( this IEnumerable<A> a, IEnumerable<B> b, IEnumerable<C> c )
     {
         using var iteratorA = a.GetEnumerator();
         using var iteratorB = b.GetEnumerator();
         using var iteratorC = c.GetEnumerator();
         while( iteratorA.MoveNext() && iteratorB.MoveNext() && iteratorC.MoveNext() )
         {
-            yield return new Tuple<A, B, C>( iteratorA.Current, iteratorB.Current, iteratorC.Current );
+            yield return ( iteratorA.Current, iteratorB.Current, iteratorC.Current );
         }
     }
 

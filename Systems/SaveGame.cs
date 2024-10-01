@@ -38,28 +38,43 @@ namespace Save
 		[JsonIgnore] public static readonly string extension = ".json";
 		[JsonIgnore] public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
+
 		public JSONSave( string path, int version )
 			: base( path, version )
 		{
 			if ( !File.Exists( fullPath ) )
 				return;
 
-			try
-			{
-				using var reader = File.OpenText( fullPath );
-				if ( reader == null )
-					return;
+			using var reader = File.OpenText( fullPath );
+			if ( reader == null )
+				return;
 
-				var json = reader.ReadToEnd();
+			var json = reader.ReadToEnd();
+			LoadFromJson( json );
+		}
+
+
+		public JSONSave( TextAsset jsonData, int version )
+			: base( jsonData.name, version )
+		{
+			LoadFromJson( jsonData.text );
+		}
+
+		private void LoadFromJson( string json )
+		{
+
+			//try
+			//{
+
 				JsonConvert.PopulateObject( json, this, new JsonSerializerSettings
 				{
 					TypeNameHandling = TypeNameHandling.Auto
 				} );
-			}
-			catch ( Exception e )
-			{
-				Debug.LogError( $"Failed to load JSON save file: {fullPath}\n{e}" );
-			}
+			//}
+			//catch ( Exception e )
+			//{
+			//	Debug.LogError( $"Failed to load JSON save file: {fullPath}\n{e}" );
+			//}
 		}
 
 		public override void Save()

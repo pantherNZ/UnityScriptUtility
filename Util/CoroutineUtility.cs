@@ -230,7 +230,7 @@ public static partial class Utility
         SetPosition( transform, localPosition, targetPosition );
     }
 
-    private static Quaternion GetRotation( Transform t, bool local )
+	private static Quaternion GetRotation( Transform t, bool local )
     {
         return local ? t.localRotation : t.rotation;
     }
@@ -245,6 +245,10 @@ public static partial class Utility
                 t.rotation = rotation;
         }
     }
+	public static void InterpolateRotation( this MonoBehaviour mono, Quaternion rotation, float durationSec, bool localRotation = true, EasingFunction easingFunction = null/*= EasingFunction.Linear*/)
+	{
+		mono.StartCoroutine( InterpolateRotation( mono.transform, rotation, durationSec, localRotation, easingFunction ) );
+	}
 
     public static void InterpolateRotation( this MonoBehaviour mono, Vector3 rotation, float durationSec, bool localRotation = true, EasingFunction easingFunction = null/*= EasingFunction.Linear*/)
     {
@@ -258,24 +262,29 @@ public static partial class Utility
 
     public static IEnumerator InterpolateRotation( Transform transform, Vector3 rotation, float durationSec, bool localRotation = true, EasingFunction easingFunction = null/*= EasingFunction.Linear*/)
     {
-        if( durationSec <= 0.0f )
-        {
-            Debug.LogError( "InterpolateRotation called with a negative or 0 duration" );
-            yield return null;
-        }
+		yield return InterpolateRotation( transform, Quaternion.Euler( rotation ), durationSec, localRotation, easingFunction );
+	}
 
-        var startRot = GetRotation( transform, localRotation );
-        var goalRot = startRot * Quaternion.Euler( rotation );
-        float t = 0.0f;
+	public static IEnumerator InterpolateRotation( Transform transform, Quaternion rotation, float durationSec, bool localRotation = true, EasingFunction easingFunction = null/*= EasingFunction.Linear*/)
+	{
+		if ( durationSec <= 0.0f )
+		{
+			Debug.LogError( "InterpolateRotation called with a negative or 0 duration" );
+			yield return null;
+		}
 
-        while( transform != null && t < 1.0f)
-        {
-            t = Mathf.Min( 1.0f, t + Time.deltaTime * ( 1.0f / durationSec ) );
-            float interpValue = easingFunction != null ? easingFunction( t ) : t;
-            SetRotation( transform, localRotation, Quaternion.Slerp( startRot, goalRot, interpValue ) );
-            yield return null;
-        }
-    }
+		var startRot = GetRotation( transform, localRotation );
+		var goalRot = startRot * rotation;
+		float t = 0.0f;
+
+		while ( transform != null && t < 1.0f )
+		{
+			t = Mathf.Min( 1.0f, t + Time.deltaTime * ( 1.0f / durationSec ) );
+			float interpValue = easingFunction != null ? easingFunction( t ) : t;
+			SetRotation( transform, localRotation, Quaternion.Slerp( startRot, goalRot, interpValue ) );
+			yield return null;
+		}
+	}
 
 #if PATH_CREATOR_PACKAGE
     public static void InterpolateAlongPath( this MonoBehaviour mono, PathCreation.PathCreator path, float durationSec )
@@ -309,7 +318,7 @@ public static partial class Utility
     }
 #endif // PATH_CREATOR_PACKAGE
 
-    [Serializable]
+	[Serializable]
     public struct ShakeParams
     {
         public float durationSec;

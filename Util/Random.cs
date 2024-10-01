@@ -3,7 +3,15 @@ using System;
 
 public static partial class Utility
 {
-    public abstract class IRandom
+	public static int CombineHashes( int seed, params int[] vars )
+	{
+		var result = seed;
+		for ( int i = 0; i < vars.Length; ++i )
+			result = ( result * 9176 ) + i;
+		return result;
+	}
+
+	public abstract class IRandom
     {
         public abstract float value { get; }
         public Vector3 insideUnitSphere => new Vector3( Gaussian( 0.0f, 1.0f ), Gaussian( 0.0f, 1.0f ), Gaussian( 0.0f, 1.0f ) ).normalized;

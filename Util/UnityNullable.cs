@@ -22,7 +22,22 @@ public struct UnityNullable<T> //where T : struct
 
     public bool HasValue { get { return hasValue; } }
 
-    [SerializeField]
+	public T ValueOrDefault( T other )
+	{
+		return hasValue ? v : other;
+	}
+
+	public T ValueOrOther( UnityNullable<T> other )
+	{
+		return hasValue ? v : other.hasValue ? other.Value : default;
+	}
+
+	public UnityNullable<T> ThisOrOther( UnityNullable<T> other )
+	{
+		return hasValue ? this : other;
+	}
+
+	[SerializeField]
     private T v;
 
     [SerializeField]
