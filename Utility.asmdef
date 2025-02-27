@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "Unity.TextMeshPro",
-        "Unity.TextMeshPro.Editor"
+        "Unity.TextMeshPro.Editor",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

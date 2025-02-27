@@ -52,11 +52,12 @@ public static partial class Utility
     public static string GetResourcePath( UnityEngine.Object @object )
     {
         var resource = AssetDatabase.GetAssetPath( @object );
+		if ( resource == "" )
+			return "";
         var startIdx = resource.IndexOf( "Resources/" ) + 10;
         resource = resource[startIdx..resource.LastIndexOf( '.' )];
         return resource;
     }
-#endif
 
 	public static void GetResourcePaths( string path, ref List<string> pathsOut, bool recursive = true )
 	{
@@ -74,6 +75,7 @@ public static partial class Utility
 			foreach ( var dir in dirInfo.GetDirectories() )
 				GetResourcePaths( path + "/" + dir.Name, ref pathsOut );
 	}
+#endif
 
 	public static Sprite CreateSprite( Texture2D texture )
     {
@@ -156,7 +158,34 @@ public static partial class Utility
         Debug.DrawLine( rect.BottomLeft(), rect.TopLeft(), colour.Value, duration );
     }
 
-	public static void DrawBox( Vector3 pos, Quaternion? rot = null, Vector3? scale = null, Color? colour = null, float duration = 0.01f )
+	public static void DrawRectXZ( Rect rect, Color? colour = null, float duration = 0.01f, float height = 0.0f )
+	{
+		colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
+		Debug.DrawLine( rect.TopLeft().ToVector3XZ( height ), rect.TopRight().ToVector3XZ( height ), colour.Value, duration );
+		Debug.DrawLine( rect.TopRight().ToVector3XZ( height ), rect.BottomRight().ToVector3XZ( height ), colour.Value, duration );
+		Debug.DrawLine( rect.BottomRight().ToVector3XZ( height ), rect.BottomLeft().ToVector3XZ( height ), colour.Value, duration );
+		Debug.DrawLine( rect.BottomLeft().ToVector3XZ( height ), rect.TopLeft().ToVector3XZ( height ), colour.Value, duration );
+	}
+
+    public static void DrawRect( RectRotated rect, Color? colour = null, float duration = 0.01f )
+    {
+        colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
+        Debug.DrawLine( rect.TopLeft(), rect.TopRight(), colour.Value, duration );
+        Debug.DrawLine( rect.TopRight(), rect.BottomRight(), colour.Value, duration );
+        Debug.DrawLine( rect.BottomRight(), rect.BottomLeft(), colour.Value, duration );
+        Debug.DrawLine( rect.BottomLeft(), rect.TopLeft(), colour.Value, duration );
+    }
+
+    public static void DrawRectXZ( RectRotated rect, Color? colour = null, float duration = 0.01f, float height = 0.0f )
+    {
+        colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
+        Debug.DrawLine( rect.TopLeft().ToVector3XZ( height ), rect.TopRight().ToVector3XZ( height ), colour.Value, duration );
+        Debug.DrawLine( rect.TopRight().ToVector3XZ( height ), rect.BottomRight().ToVector3XZ( height ), colour.Value, duration );
+        Debug.DrawLine( rect.BottomRight().ToVector3XZ( height ), rect.BottomLeft().ToVector3XZ( height ), colour.Value, duration );
+        Debug.DrawLine( rect.BottomLeft().ToVector3XZ( height ), rect.TopLeft().ToVector3XZ( height ), colour.Value, duration );
+    }
+
+    public static void DrawBox( Vector3 pos, Quaternion? rot = null, Vector3? scale = null, Color? colour = null, float duration = 0.01f )
 	{
 		rot ??= Quaternion.identity;
 		colour ??= new Color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -339,6 +368,19 @@ public static partial class Utility
         }
     }
 
+	public static IEnumerable<Transform> AllChildren( this Transform collection, bool activeOnly = false )
+	{
+		foreach ( Transform child in collection )
+		{
+			if ( activeOnly && !child.gameObject.activeSelf )
+				continue;
+
+			yield return child;
+			foreach ( var t in AllChildren( child ) )
+				yield return t;
+		}
+	}
+
     public static void DestroyChildren( this Transform transform )
     {
         while( transform.childCount > 0 )
@@ -496,8 +538,18 @@ public class TransformData
 
 public enum EAxis
 {
-    X,
-    Y,
-    Z,
-    None,
+	X,
+	Y,
+	Z,
+	None,
+}
+
+[Flags]
+public enum EAxisMask
+{
+	None,
+	X = 1 << 0,
+	Y = 1 << 1,
+	Z = 1 << 2,
+	All,
 }
