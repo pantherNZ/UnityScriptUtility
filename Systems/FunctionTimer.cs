@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor;
 
 public static partial class Utility
 {
@@ -12,7 +13,9 @@ public static partial class Utility
         {
             get
             {
-                if( functionTimerHandler == null )
+				functionTimerHandler ??= FindFirstObjectByType<FunctionTimerHandler>();
+
+				if ( functionTimerHandler == null )
                 {
                     var obj = new GameObject( "FunctionTimerHandler" );
                     functionTimerHandler = obj.AddComponent<FunctionTimerHandler>();
@@ -21,7 +24,11 @@ public static partial class Utility
             }
         }
 
-        List<FunctionTimer> timerList = new List<FunctionTimer>();
+#if UNITY_EDITOR
+		bool isTickingInEditor = false;
+#endif
+
+		List<FunctionTimer> timerList = new List<FunctionTimer>();
 
         public FunctionTimer AddTimer( FunctionTimer timer )
         {
@@ -31,7 +38,12 @@ public static partial class Utility
                 return null;
             }
 
-            timerList.Add( timer );
+#if UNITY_EDITOR
+			if( !isTickingInEditor )
+				EditorApplication.update += FixedUpdateEditor;
+#endif
+
+			timerList.Add( timer );
             return timerList.Back();
         }
 
@@ -84,17 +96,23 @@ public static partial class Utility
             for( var idx = timerList.Count - 1; idx >= 0; --idx )
                 if( timerList[idx].timeLeft <= 0.0f )
                     timerList.RemoveAt( idx );
-
-            if( timerList.IsEmpty() )
-            {
-                if( Instance.gameObject != null )
-                    Instance.gameObject.Destroy();
-                functionTimerHandler = null;
-            }
         }
-    }
 
-    public class FunctionTimer
+#if UNITY_EDITOR
+		private void FixedUpdateEditor()
+		{
+			Update();
+
+			if ( timerList.IsEmpty() )
+			{
+				EditorApplication.update -= FixedUpdateEditor;
+				isTickingInEditor = false;
+			}
+		}
+#endif
+	}
+
+	public class FunctionTimer
     {
         public static FunctionTimer CreateTimer( float duration, Action action, string name = "", bool loop = false, bool useUnscaledDeltaTime = false )
         {
