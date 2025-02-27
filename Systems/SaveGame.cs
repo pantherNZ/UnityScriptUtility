@@ -8,15 +8,19 @@ using UnityEngine;
 
 namespace Save
 {
+	public static class Util
+	{
+		public static string GetRelativeDirectory( string root, string path ) =>
+			path[path.IndexOf( root )..path.LastIndexOf( '.' )];
+	}
+
 	public abstract class BaseSave
 	{
-		public BaseSave( string path, int version )
+		public BaseSave( string path )
 		{
 			this.path = path;
-			this.version = version;
 		}
 
-		[JsonIgnore] public int version { get; protected set; }
 		[JsonIgnore] public string path { get; protected set; }
 		[JsonIgnore] public abstract string fullPath { get; }
 		[JsonIgnore] public string directory => Path.GetDirectoryName( fullPath );
@@ -38,9 +42,8 @@ namespace Save
 		[JsonIgnore] public static readonly string extension = ".json";
 		[JsonIgnore] public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
-
-		public JSONSave( string path, int version )
-			: base( path, version )
+		public JSONSave( string path )
+			: base( path )
 		{
 			if ( !File.Exists( fullPath ) )
 				return;
@@ -53,28 +56,25 @@ namespace Save
 			LoadFromJson( json );
 		}
 
-
-		public JSONSave( TextAsset jsonData, int version )
-			: base( jsonData.name, version )
+		public JSONSave( TextAsset jsonData )
+			: base( jsonData.name )
 		{
 			LoadFromJson( jsonData.text );
 		}
 
 		private void LoadFromJson( string json )
 		{
-
-			//try
-			//{
-
+			try
+			{
 				JsonConvert.PopulateObject( json, this, new JsonSerializerSettings
 				{
 					TypeNameHandling = TypeNameHandling.Auto
 				} );
-			//}
-			//catch ( Exception e )
-			//{
-			//	Debug.LogError( $"Failed to load JSON save file: {fullPath}\n{e}" );
-			//}
+			}
+			catch ( Exception e )
+			{
+				Debug.LogError( $"Failed to load JSON save file: {fullPath}\n{e}" );
+			}
 		}
 
 		public override void Save()
@@ -100,7 +100,7 @@ namespace Save
 		public static List<T> LoadAll<T>( string folderPath ) where T : JSONSave
 		{
 			var files = Directory.GetFiles( folderPath, $"*.{extension}" );
-			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
+			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), Util.GetRelativeDirectory( folderPath, x ) ) ).ToList();
 		}
 	}
 
@@ -109,12 +109,18 @@ namespace Save
 		public static readonly string extension = ".dat";
 		public override string fullPath { get { return Application.persistentDataPath + "/" + path + extension; } }
 
-		protected abstract void Serialise( System.IO.BinaryWriter writer );
-		protected abstract void Deserialise( System.IO.BinaryReader reader );
+		protected abstract void Serialise( BinaryWriter writer );
+		protected abstract void Deserialise( BinaryReader reader );
 
-		public BinarySave( string path, int version )
-			: base( path, version )
+		public BinarySave( string path, bool autoLoad = true )
+			: base( path )
 		{
+			if ( autoLoad )
+				Load();
+		}
+
+		protected void Load()
+		{ 
 			if ( !File.Exists( fullPath ) )
 				return;
 
@@ -123,7 +129,6 @@ namespace Save
 				var bytes = File.ReadAllBytes( fullPath );
 				using var memoryStream = new MemoryStream( bytes, writable: false );
 				using var reader = new BinaryReader( memoryStream );
-				this.version = reader.ReadByte();
 				Deserialise( reader );
 			}
 			catch ( Exception e )
@@ -141,8 +146,6 @@ namespace Save
 			
 				using var memoryStream = new MemoryStream();
 				using var writer = new BinaryWriter( memoryStream );
-
-				writer.Write( ( byte )version );
 				Serialise( writer );
 
 				var content = memoryStream.ToArray();
@@ -157,7 +160,7 @@ namespace Save
 		public static List<T> LoadAll<T>( string folderPath ) where T : BinarySave
 		{
 			var files = Directory.GetFiles( folderPath, $"*.{extension}" );
-			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), x ) ).ToList();
+			return files.Select( x => ( T )Activator.CreateInstance( typeof( T ), Util.GetRelativeDirectory( folderPath, x ) ) ).ToList();
 		}
 	}
 
