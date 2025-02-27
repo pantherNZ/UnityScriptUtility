@@ -1,14 +1,26 @@
 ﻿using UnityEngine;
 using System;
+using Unity.Mathematics;
 
 public static partial class Utility
 {
 	public static int CombineHashes( int seed, params int[] vars )
 	{
-		var result = seed;
-		for ( int i = 0; i < vars.Length; ++i )
-			result = ( result * 9176 ) + i;
-		return result;
+		int hash1 = ( seed << 5 + 5381 << 16 ) + 5381;
+		int hash2 = hash1;
+
+		int i = 0;
+		foreach ( var v in vars )
+		{
+			if ( i % 2 == 0 )
+				hash1 = ( ( hash1 << 5 ) + hash1 + ( hash1 >> 27 ) ) ^ v;
+			else
+				hash2 = ( ( hash2 << 5 ) + hash2 + ( hash2 >> 27 ) ) ^ v;
+
+			++i;
+		}
+
+		return hash1 + ( hash2 * 1566083941 );
 	}
 
 	public abstract class IRandom
@@ -50,9 +62,9 @@ public static partial class Utility
         }
         public int Int() => Range( int.MinValue, int.MaxValue );
 		public int Percent() => Range( 0, 100 );
-		public bool Roll( int chance ) => chance >= 100 || chance >= Percent();
+		public bool Roll( int chance ) => chance >= 100 || ( chance > 0 && chance >= Percent() );
 		public float PercentF() => Range( 0.0f, 1.0f );
-		public bool Roll( float chance ) => chance >= 1.0f || chance >= PercentF();
+		public bool Roll( float chance ) => chance >= 1.0f || ( chance > 0.0f && chance >= PercentF() );
 		public bool Bool() => Roll( 50 );
         public float Gaussian( float mean, float stdDev )
         {
@@ -76,12 +88,13 @@ public static partial class Utility
         private System.Random rng;
     }
 
-	// Avoid using this class, unity only operates on a single state/seed
     public class UnityRandom : IRandom
     {
-        public UnityRandom() { UnityEngine.Random.InitState( ( int )DateTime.Now.Ticks ); }
-        public UnityRandom( int seed ) { UnityEngine.Random.InitState( seed ); }
-        public override float value => UnityEngine.Random.value;
+        public UnityRandom() : this( ( int )DateTime.Now.Ticks ) { }
+        public UnityRandom( int seed ) { rng = new Unity.Mathematics.Random( ( uint )seed ); }
+		public override float value => rng.NextFloat();
+
+		Unity.Mathematics.Random rng;
     }
 
 	public class SeededRandom : IRandom
