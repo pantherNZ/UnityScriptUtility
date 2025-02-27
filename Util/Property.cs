@@ -83,6 +83,7 @@ public class Binding<T> : Property<T>
 {
 	private Action<Binding<T>> _onDestroyed;
 	private bool _propagateUnbind;
+	private Func<T, T, bool> _predicate;
 
 	public Binding( Property<T> property, bool propagateUnbind = true )
 	{
@@ -97,8 +98,15 @@ public class Binding<T> : Property<T>
 		UnbindFromSource();
 	}
 
+	public void SetPredicate( Func<T, T, bool> predicate )
+	{
+		_predicate = predicate;
+	}
+
 	internal void OnChanged( T value )
 	{
+		if ( _predicate != null && !_predicate( this.value, value ) )
+			return;
 		this.value = value;
 		TriggerChanged();
 	}
@@ -113,6 +121,16 @@ public class Binding<T> : Property<T>
 		_onDestroyed = null;
 		if ( _propagateUnbind )
 			Unbind();
+	}
+}
+
+[Serializable]
+[DebuggerDisplay( "ConstantProperty : {value}" )]
+public class ConstantProperty<T> : Property<T>
+{
+	public ConstantProperty( T value )
+	{
+		this.value = value;
 	}
 }
 

@@ -6,5 +6,4 @@ public static partial class Utility
 	{
 		return obj.GetComponent<T>() != null;
 	}
-
 }
