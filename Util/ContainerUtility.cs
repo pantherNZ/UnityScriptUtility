@@ -3,11 +3,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public static partial class Utility
 {
-    public static void Resize<T>( this List<T> list, int size, T value = default )
+	public static IEnumerable<T> ToIEnumerable<T>( this IEnumerator<T> enumerator )
+	{
+		while ( enumerator.MoveNext() )
+		{
+			yield return enumerator.Current;
+		}
+	}
+
+	public static IEnumerable ToIEnumerable( this IEnumerator enumerator )
+	{
+		while ( enumerator.MoveNext() )
+		{
+			yield return enumerator.Current;
+		}
+	}
+
+	public static void Resize<T>( this List<T> list, int size, T value = default )
     {
         int cur = list.Count;
         if( size < cur )
@@ -49,7 +66,15 @@ public static partial class Utility
         return val;
     }
 
-    public static Pair<U, V> FindPairFirst<U, V>( this List<Pair<U, V>> list, U item )
+	public static void SetOrAddValue<TKey, TValue>( this IDictionary<TKey, TValue> dict, TKey key, TValue tValue ) where TValue : new()
+	{
+		if ( !dict.TryGetValue( key, out TValue val ) )
+			dict.Add( key, tValue );
+		else
+			dict[key] = tValue;
+	}
+
+	public static Pair<U, V> FindPairFirst<U, V>( this List<Pair<U, V>> list, U item )
     {
         return list.Find( x => x.First.Equals( item ) );
     }
@@ -194,14 +219,33 @@ public static partial class Utility
         return list[( rng ?? DefaultRng ).Range( 0, list.Count )];
     }
 
-    public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default, IRandom rng = null )
+	public static T TakeRandomItem<T>( this IList<T> list, T defaultValue = default, IRandom rng = null )
+	{
+		if ( list.IsEmpty() )
+			return defaultValue;
+		var idx = ( rng ?? DefaultRng ).Range( 0, list.Count );
+		var item = list[idx];
+		list.RemoveAt( idx );
+		return item;
+	}
+
+	public static KeyValuePair<TKey, TValue> RandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default, IRandom rng = null )
     {
         if( dict.IsEmpty() )
             return defaultValue;
         return dict.ElementAt( ( rng ?? DefaultRng ).Range( 0, dict.Count ) );
     }
 
-    public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default, IRandom rng = null )
+	public static KeyValuePair<TKey, TValue> TakeRandomItem<TKey, TValue>( this Dictionary<TKey, TValue> dict, KeyValuePair<TKey, TValue> defaultValue = default, IRandom rng = null )
+	{
+		if ( dict.IsEmpty() )
+			return defaultValue;
+		var item = dict.ElementAt( ( rng ?? DefaultRng ).Range( 0, dict.Count ) );
+		dict.Remove( item.Key );
+		return item;
+	}
+
+	public static TKey RandomItem<TKey>( this HashSet<TKey> dict, TKey defaultValue = default, IRandom rng = null )
     {
         if( dict.IsEmpty() )
             return defaultValue;
@@ -355,5 +399,69 @@ public static partial class Utility
 	{
 		for ( var i = 0; i < target.GetLength( 0 ); ++i )
 			yield return target[firstDimensionIdx, i];
+	}
+
+	public static TSource MinElement<TSource>( this IEnumerable<TSource> source, Func<TSource, float> selector )
+	{
+		if ( source is IList<TSource> list )
+		{
+			if ( list.Count == 0 )
+			{
+				throw new System.ArgumentException( "You cannot use MinElement on an empty list!" );
+			}
+		}
+		else
+		{
+			using IEnumerator<TSource> enumerator = source.GetEnumerator();
+			if ( !enumerator.MoveNext() || enumerator.Current == null )
+				throw new System.ArgumentException( "You cannot use MinElement on an empty list!" );
+		}
+
+		var values = source.Select( selector );
+		float f = float.MaxValue;
+		int minIdx = -1;
+
+		foreach ( var (idx, v) in values.Enumerate() )
+		{
+			if ( v < f )
+			{
+				minIdx = idx;
+				f = v;
+			}
+		}
+
+		return source.ElementAt( minIdx );
+	}
+
+	public static TSource MaxElement<TSource>( this IEnumerable<TSource> source, Func<TSource, float> selector )
+	{
+		if ( source is IList<TSource> list )
+		{
+			if ( list.Count == 0 )
+			{
+				throw new System.ArgumentException( "You cannot use MinElement on an empty list!" );
+			}
+		}
+		else
+		{
+			using IEnumerator<TSource> enumerator = source.GetEnumerator();
+			if ( !enumerator.MoveNext() || enumerator.Current == null )
+				throw new System.ArgumentException( "You cannot use MinElement on an empty list!" );
+		}
+
+		var values = source.Select( selector );
+		float f = float.MinValue;
+		int minIdx = -1;
+
+		foreach ( var (idx, v) in values.Enumerate() )
+		{
+			if ( v > f )
+			{
+				minIdx = idx;
+				f = v;
+			}
+		}
+
+		return source.ElementAt( minIdx );
 	}
 }
