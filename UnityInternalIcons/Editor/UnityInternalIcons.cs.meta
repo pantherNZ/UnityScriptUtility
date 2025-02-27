@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: f4251118b978c4ae79cac6f98c480842
+timeCreated: 1472345874
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 70496
+  packageName: Unity Internal Icons
+  packageVersion: 1.1
+  assetPath: Assets/Tarfmagougou/UnityInternalIcons/Editor/UnityInternalIcons.cs
+  uploadId: 136535
