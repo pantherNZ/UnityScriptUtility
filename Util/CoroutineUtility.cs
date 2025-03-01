@@ -394,4 +394,42 @@ public static partial class Utility
         yield return new WaitForSeconds( delaySec );
         action();
     }
+
+	public static IEnumerator FadeIn( this AudioSource audioSource, float durationSec = 1.0f, float startVolume = 0.0f )
+	{
+		audioSource.volume = startVolume;
+		audioSource.Play();
+
+		while ( audioSource.volume < 1.0f )
+		{
+			audioSource.volume += Time.deltaTime / durationSec;
+			yield return null;
+		}
+
+		audioSource.volume = 1.0f;
+	}
+
+	public static IEnumerator FadeOut( this AudioSource audioSource, float durationSec = 1.0f )
+	{
+		float startVolume = audioSource.volume;
+
+		while ( audioSource.volume > 0f )
+		{
+			audioSource.volume -= startVolume * Time.deltaTime / durationSec;
+			yield return null;
+		}
+
+		audioSource.Stop();
+		audioSource.volume = startVolume;
+	}
+
+	public static void FadeIn( this AudioSource audioSource, MonoBehaviour monoBehaviour, float duration = 1.0f )
+	{
+		monoBehaviour.StartCoroutine( audioSource.FadeIn( duration ) );
+	}
+
+	public static void FadeOut( this AudioSource audioSource, MonoBehaviour monoBehaviour, float duration = 1.0f )
+	{
+		monoBehaviour.StartCoroutine( audioSource.FadeOut( duration ) );
+	}
 }
